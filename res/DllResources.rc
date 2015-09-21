@@ -1,0 +1,10 @@
+#include "DllResources.h"
+
+MHUD2_STAT_ICONS RCDATA "files/MUD2StatIcons.png"
+MHUD2_STAT_ICONS_TEXMAP RCDATA "files/MHUD2StatIcons.texmap"
+
+MHUD2_ISAAC_FONT_PNG RCDATA "files/MHUD2Font.png"
+MHUD2_ISAAC_FONT_CHARMAP RCDATA "files/MHUD2FontCharmap.texmap"
+
+OPENGL_HUD_SPRITE_VERTEX_SHADER RCDATA "shaders/hud_icon_vert.glsl"
+OPENGL_HUD_SPRITE_FRAG_SHADER RCDATA "shaders/hud_icon_frag.glsl"
