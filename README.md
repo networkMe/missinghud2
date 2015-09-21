@@ -4,6 +4,8 @@ Missing HUD 2 is an Open-GL powered informational overlay for the Binding of Isa
 The developers of Rebirth (Edmund McMillen, Nicalis) decided that one of their design decisions for the game would be to hide raw player statistics from the player as to not to overwhelm them.
 This project attempts to give the player the choice to see their raw statistics if they choose to.
 
+![Image of MissingHUD2](https://raw.githubusercontent.com/networkMe/missinghud2/master/doc/isaac-mhud2-example.jpg)
+
 ## Using
 Missing HUD 2 aims to be nearly transparent to the user (and to Rebirth itself).
 
