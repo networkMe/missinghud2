@@ -57,8 +57,12 @@ FileResource ResourceLoader::LoadBinResource(RESID res_id)
     if (h_rec ==  NULL)
         return FileResource();
 
-    FileResource file_res;
-    file_res.bin_data = (LPVOID)LockResource(h_rec);
-    file_res.res_size = SizeofResource(module_, res_loc);
-    return file_res;
+    FileResource res_file = {
+        (LPVOID)LockResource(h_rec),
+        SizeofResource(module_, res_loc)
+    };
+
+    // Add the resource to our loaded resource's list
+    loaded_resources_.insert(std::make_pair(res_id, res_file));
+    return res_file;
 }

@@ -17,6 +17,8 @@
 
 #include <string>
 #include <mutex>
+#include <condition_variable>
+#include <thread>
 
 #include <windows.h>
 #include <GL/glew.h>
@@ -36,17 +38,15 @@ public:
     void CustomizeFrame(HDC hdc);
 
     void Cleanup();
-    void FlagCleanup();
-    bool ShouldCleanup();
-    bool CleanupDone();
-
-    LPVOID GetGDI32HookAddr()
+    void WaitForCleanup();
+    inline bool ShouldCleanup()
     {
-        HMODULE gdi32 = GetModuleHandle("gdi32.dll");
-        return (LPVOID)GetProcAddress(gdi32, "SwapBuffers");
+        std::lock_guard<std::mutex> lock_guard(cleanup_mutex);
+        return cleanup_resources_;
     };
 
-    GDISWAPBUFFERSFUNC *GetEndpointAddr()
+    LPVOID GetGDI32HookAddr();
+    inline GDISWAPBUFFERSFUNC *GetEndpointAddr()
     {
         return &endpoint_addr_;
     };
@@ -61,9 +61,11 @@ private:
     std::mutex cleanup_mutex;
     bool cleanup_resources_ = false;
     bool cleanup_complete_ = false;
+    std::condition_variable cleanup_complete_cv_;
 
     bool glew_ready_ = false;
 
+    LPVOID orig_swap_buffers_addr_ = NULL;
     GDISWAPBUFFERSFUNC endpoint_addr_ = nullptr;
 };
 

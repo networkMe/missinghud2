@@ -34,6 +34,11 @@ SpriteSheet *SpriteSheet::LoadSpriteSheet(RESID spritesheet_res_id, RESID sprite
 
 SpriteSheet *SpriteSheet::GetSpriteSheet(RESID spritesheet_res_id)
 {
+    if (spritesheets_.count(spritesheet_res_id) == 0)
+    {
+        return nullptr;
+    }
+
     return spritesheets_[spritesheet_res_id];
 }
 
@@ -175,7 +180,6 @@ void SpriteSheet::DrawSprite(glm::vec2 position, glm::vec2 size, std::string spr
 
     // Actually draw the sprite
     spritesheet_shader->Use();
-
     glBindTexture(GL_TEXTURE_2D, spritesheet_texture_);
 
     glBindBuffer(GL_ARRAY_BUFFER, array_buffer_);

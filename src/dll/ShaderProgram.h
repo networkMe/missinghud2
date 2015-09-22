@@ -40,7 +40,7 @@ public:
         glUseProgram(0);
     };
 
-    GLuint GetProgram()
+    GLuint GetProgID()
     {
         return compiled_prog_id_;
     };

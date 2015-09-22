@@ -36,23 +36,6 @@ bool operator !=(const STDSIZE & x, const STDSIZE & y);
 typedef STDSIZE VIEWSIZE;
 typedef STDSIZE SPRITESIZE;
 
-struct BitmapChar
-{
-    BitmapChar() {};
-    BitmapChar(GLuint _texture_id, glm::ivec2 _size, glm::ivec2 _baseline_offset, GLuint _advance_width)
-    {
-        texture_id = _texture_id;
-        size = _size;
-        baseline_offset = _baseline_offset;
-        advance_width = _advance_width;
-    }
-
-    GLuint texture_id = 0;
-    glm::ivec2 size;
-    glm::ivec2 baseline_offset;
-    GLuint advance_width = 0;
-};
-
 struct Color
 {
     Color() {};

@@ -30,7 +30,6 @@ ShaderProgram *ShaderProgram::GetProgram(int vertex_res, int fragment_res)
 
     // Nope, we don't have it cached, gotta compile and link the program
     ShaderProgram *shader_program = new ShaderProgram();
-
     if (!shader_program->CompileProgram(vertex_res, fragment_res))
         return nullptr;
 

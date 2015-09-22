@@ -23,6 +23,13 @@ typedef int RESID;
 
 struct FileResource
 {
+    FileResource() { };
+    FileResource(LPVOID _bin_data, DWORD _res_size)
+    {
+        bin_data = _bin_data;
+        res_size = _res_size;
+    }
+
     LPVOID bin_data = nullptr;
     DWORD res_size = 0;
 };

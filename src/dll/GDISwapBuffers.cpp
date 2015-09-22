@@ -50,19 +50,26 @@ void GDISwapBuffers::Cleanup()
         ShaderProgram::DestroyAll();
         SpriteSheet::DestroyAllSpriteSheets();
         cleanup_complete_ = true;
+        cleanup_complete_cv_.notify_all();
     }
 }
 
-void GDISwapBuffers::FlagCleanup()
+void GDISwapBuffers::WaitForCleanup()
 {
-    std::lock_guard<std::mutex> lock_guard(cleanup_mutex);
+    std::unique_lock<std::mutex> uni_lock(cleanup_mutex);
     cleanup_resources_ = true;
+    cleanup_complete_cv_.wait(uni_lock);
 };
 
-bool GDISwapBuffers::ShouldCleanup()
+LPVOID GDISwapBuffers::GetGDI32HookAddr()
 {
-    std::lock_guard<std::mutex> lock_guard(cleanup_mutex);
-    return cleanup_resources_;
+    if (orig_swap_buffers_addr_ == NULL)
+    {
+        HMODULE gdi32 = GetModuleHandle("gdi32.dll");
+        orig_swap_buffers_addr_ = (LPVOID)GetProcAddress(gdi32, "SwapBuffers");
+    }
+
+    return orig_swap_buffers_addr_;
 }
 
 void GDISwapBuffers::CustomizeFrame(HDC hdc)
@@ -72,6 +79,7 @@ void GDISwapBuffers::CustomizeFrame(HDC hdc)
     {
         glewExperimental = GL_TRUE;
         glewInit();
+        glew_ready_ = true;
     }
 
     // Disable DEPTH_TEST so we can draw over the top of Rebirth

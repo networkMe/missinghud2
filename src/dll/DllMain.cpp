@@ -49,7 +49,7 @@ extern "C" DLL_PUBLIC void HUD2_Start()
 
     // Hook the OpenGL SwapBuffers function
     GDISwapBuffers *gdi_swapbuffers = GDISwapBuffers::GetInstance();
-    if (MH_CreateHook(gdi_swapbuffers->GetGDI32HookAddr(), (LPVOID)&gdiSwapBuffersDetour, (LPVOID*) gdi_swapbuffers->GetEndpointAddr()) != MH_OK)
+    if (MH_CreateHook(gdi_swapbuffers->GetGDI32HookAddr(), (LPVOID)&gdiSwapBuffersDetour, (LPVOID*)gdi_swapbuffers->GetEndpointAddr()) != MH_OK)
         FreeLibraryAndExitThread(dll_handle, EXIT_FAILURE);
 
     // Enable the hooks
@@ -63,10 +63,7 @@ extern "C" DLL_PUBLIC void HUD2_Stop()
 
     // Tell our SwapBuffers detour to cleanup it's OpenGL stuff
     GDISwapBuffers *gdi_swapbuffers = GDISwapBuffers::GetInstance();
-    gdi_swapbuffers->FlagCleanup();
-
-    // Wait for the cleanup to happen in the OpenGL context thread
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    gdi_swapbuffers->WaitForCleanup();
 
     // Disable MinHook hooks
     MH_DisableHook(gdi_swapbuffers->GetGDI32HookAddr());

@@ -16,7 +16,7 @@
 
 std::map<RESID, TextRenderer*> TextRenderer::renderers_;
 
-TextRenderer * TextRenderer::GetRenderer(RESID font_res_id, RESID font_charmap)
+TextRenderer *TextRenderer::GetRenderer(RESID font_res_id, RESID font_charmap)
 {
     if (renderers_.count(font_res_id) > 0)
     {
@@ -60,6 +60,6 @@ void TextRenderer::RenderText(glm::vec2 position, std::string text)
     {
         char sprite_letter[2] = { text_ch, '\0' };
         text_sprites->DrawSprite(position, glm::vec2(0.04f, 0.06f), std::string(sprite_letter));
-        position.x += 0.020f;
+        position.x += 0.018f;
     }
 }
