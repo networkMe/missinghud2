@@ -24,6 +24,22 @@
 
 #define ISAAC_MODULE_NAME "isaac-ng.exe"
 
+#define ITEM_ACTIVE_SLOT 0xCC8
+#define ACTIVE_ITEM_BOOKOFREVELATIONS 0x4E
+#define ACTIVE_ITEM_BOOKOFBELIAL 0x22
+
+#define PASSIVE_ITEM_PENTAGRAM 0xE38
+#define PASSIVE_ITEM_GOATHEAD 0x10C8
+#define PASSIVE_ITEM_BLACKCANDLE 0x117C
+
+#define PLAYER_MANAGER_FLOOR_FLAGS 0x5DC0
+#define PLAYER_MANAGER_FLOOR_BOSS_FIGHT 0x5D98
+#define PLAYER_MANAGER_ROOM_CODE 0x5D9C
+#define PLAYER_MANAGER_BOSS_ROOM_CODE 0x5DA4
+#define PLAYER_MANAGER_DEVILDEAL_PREV_FLOOR 0x10D7E8
+
+#define BOSS_FIGHT_TOOK_RED_DMG 0xE8C
+
 // These values are the offsets of the specific statistic from the core Player memory address
 enum RebirthPlayerStat {
     kSpeed = 0xCB4,
@@ -32,7 +48,7 @@ enum RebirthPlayerStat {
     kShotSpeed = 0xBE4,
     kDamage = 0xBF0,
     kLuck = 0xCB8,
-    kDealWithDevil = 0x10C8  // This is for a Goathead guranteed DWD, actual DWD chance is much more complicated
+    kDealWithDevil = 0xFFFFFFFF  // An advanced function is required for this statistic
 };
 
 class RebirthMemReader
@@ -58,6 +74,10 @@ private:
     DWORD GetPlayerListMemAddr();
     DWORD GetPlayerMemAddr();
 
+    float GetDealWithDevilChance();
+
+    DWORD GetCurrentRoom();
+
 private:
     static RebirthMemReader* mem_reader_;
 
@@ -66,6 +86,9 @@ private:
 
     DWORD player_manager_inst_p_addr_ = 0;
     DWORD player_manager_player_list_offset_ = 0;
+
+    int current_floor_ = 0;
+    bool boss_fight_took_dmg_ = false;
 };
 
 

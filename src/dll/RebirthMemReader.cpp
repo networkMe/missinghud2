@@ -57,6 +57,11 @@ bool RebirthMemReader::IsRunActive()
 
 float RebirthMemReader::GetPlayerStatf(RebirthPlayerStat player_stat)
 {
+    if (player_stat == RebirthPlayerStat::kDealWithDevil)
+    {
+        return GetDealWithDevilChance();
+    }
+
     DWORD player_class = GetPlayerMemAddr();
     if (player_class == 0)
         return 0.0f;
@@ -79,6 +84,91 @@ int RebirthMemReader::GetPlayerStati(RebirthPlayerStat player_stat)
 
     int stat_val = *((int*)(player_class + player_stat));
     return stat_val;
+}
+
+float RebirthMemReader::GetDealWithDevilChance()
+{
+    DWORD player_manager_inst = GetPlayerManagerMemAddr();
+    if (player_manager_inst == 0)
+        return 0.0f;
+
+    int current_floor = *((int*)player_manager_inst);
+    if (current_floor == 7 || current_floor > 8)    // In-eligible for natural DWD on these floors (even with Goat Head)
+        return 0.0f;
+
+    DWORD player = GetPlayerMemAddr();
+    if (*((DWORD*)(player + PASSIVE_ITEM_GOATHEAD)) == 1)   // Goat Head is a guaranteed DWD (100%)
+        return 1.0f;
+
+    float dwd_chance = 0.01f; // Default 1% chance
+
+    if (*((DWORD*)(player + PASSIVE_ITEM_PENTAGRAM)) == 1)      // Pentagram adds 20% chance
+        dwd_chance += 0.20f;
+
+    if (*((DWORD*)(player + PASSIVE_ITEM_BLACKCANDLE)) == 1)    // Black Candle adds 30% chance
+        dwd_chance += 0.30f;
+
+    DWORD player_active_item = *((DWORD*)(player + ITEM_ACTIVE_SLOT));
+    if (player_active_item == ACTIVE_ITEM_BOOKOFREVELATIONS)    // Holding Book of Revelations adds 35% chance
+        dwd_chance += 0.35f;
+    else if (player_active_item == ACTIVE_ITEM_BOOKOFBELIAL)    // Holding Book of Belial adds 2500% chance
+        dwd_chance += 25.00f;
+
+    BYTE floor_flag = *((BYTE*)(player_manager_inst + PLAYER_MANAGER_FLOOR_FLAGS));
+    if (floor_flag & 1)                 // Killing a normal beggar adds 35% chance
+        dwd_chance += 0.35f;
+
+    DWORD floor_flags = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_FLOOR_FLAGS));
+    if (((floor_flags >> 2) & 1) <= 0)  // Not taking red heart damage on the entire floor adds 99% chance
+        dwd_chance += 0.99f;
+    if (((floor_flags >> 6) & 1) > 0)   // Blowing up a dead shopkeeper adds 10% chance
+        dwd_chance += 0.10f;
+
+    // Not taking damage from the floor's boss room adds 35% chance to DWD chance
+    DWORD current_room = GetCurrentRoom();
+    DWORD boss_room = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_BOSS_ROOM_CODE));
+    if (current_room == boss_room)
+    {
+        DWORD boss_fight = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_FLOOR_BOSS_FIGHT));
+        BYTE boss_dmg_flag = *((BYTE*)(boss_fight + BOSS_FIGHT_TOOK_RED_DMG));
+        if (boss_dmg_flag == 1)
+            boss_fight_took_dmg_ = true;
+    }
+    else
+    {
+        if (current_floor > current_floor_)
+        {
+            // This method brings a bug where if a player restarts on the first floor
+            // after taking damage to the boss, they will not get back the +35% boss fight chance until
+            // they go down to Basement/Cellar II.
+            // Complicated to rectify and only minor.
+            boss_fight_took_dmg_ = false;
+            current_floor_ = current_floor;
+        }
+    }
+
+    if (!boss_fight_took_dmg_)      // Not taking damage from the boss fight adds 35% chance
+        dwd_chance += 0.35f;
+
+
+    DWORD devil_deal_prev_floor = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_DEVILDEAL_PREV_FLOOR));
+    if (devil_deal_prev_floor > 0 && devil_deal_prev_floor != current_floor)
+    {
+        int devil_deal_num_floors_ago = current_floor_ - (int)devil_deal_prev_floor;
+        if (devil_deal_num_floors_ago < 2)
+        {
+            dwd_chance *= 0.25f; // Player has seen a Deal with Devil door less than 2 floors ago, reduce overall chance by 75%
+        }
+        else if (devil_deal_num_floors_ago == 2)
+        {
+            dwd_chance *= 0.5f; // Player has seen a Deal with Devil door 2 floors ago, reduce overall chance by 50%
+        }
+    }
+
+    if (dwd_chance > 1.00f)
+        dwd_chance = 1.00f;
+
+    return dwd_chance;
 }
 
 DWORD RebirthMemReader::GetPlayerManagerMemAddr()
@@ -113,6 +203,14 @@ DWORD RebirthMemReader::GetPlayerMemAddr()
 
     DWORD player_p = *((DWORD*)player_list);
     return *((DWORD*)player_p);
+}
+
+DWORD RebirthMemReader::GetCurrentRoom()
+{
+    DWORD player_manager_inst = GetPlayerManagerMemAddr();
+    DWORD room_code = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_ROOM_CODE));
+    DWORD room_num = *((DWORD*)(player_manager_inst + (room_code * 4) + 0x5AC4));
+    return room_num;
 }
 
 void RebirthMemReader::GetRebirthModuleInfo()

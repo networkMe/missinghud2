@@ -81,7 +81,7 @@ void HUDOverlay::DrawHUD(HDC hdc)
     HUDStat luck_stat(MHUDSTAT::kStat_Luck);
     luck_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kLuck));
 
-    //base_hud_stats_menu.y -= 0.1f;
-    //HUDStat dwd_stat(MHUDSTAT::kStat_DealWithDevil);
-    //dwd_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStati(RebirthPlayerStat::kDealWithDevil));
+    base_hud_stats_menu.y -= 0.1f;
+    HUDStat dwd_stat(MHUDSTAT::kStat_DealWithDevil);
+    dwd_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDealWithDevil), true);
 }
