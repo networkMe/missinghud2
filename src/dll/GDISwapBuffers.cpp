@@ -58,7 +58,7 @@ void GDISwapBuffers::WaitForCleanup()
 {
     std::unique_lock<std::mutex> uni_lock(cleanup_mutex);
     cleanup_resources_ = true;
-    cleanup_complete_cv_.wait(uni_lock);
+    cleanup_complete_cv_.wait_for(uni_lock, std::chrono::seconds(5));
 };
 
 LPVOID GDISwapBuffers::GetGDI32HookAddr()

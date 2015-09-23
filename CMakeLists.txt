@@ -24,6 +24,7 @@ endif()
 set(CMAKE_SHARED_MODULE_PREFIX "")
 set(DLL_SOURCE_FILES
     src/dll/DllMain.cpp
+    src/dll/IATHook.h src/dll/IATHook.cpp
     src/dll/GLStructs.h src/dll/GLStructs.cpp
     src/dll/GDISwapBuffers.h src/dll/GDISwapBuffers.cpp
 
@@ -44,7 +45,6 @@ add_library(MissingHUD2Hook MODULE ${DLL_SOURCE_FILES})
 set_target_properties(MissingHUD2Hook PROPERTIES LINK_FLAGS "-static")
 target_compile_definitions(MissingHUD2Hook PRIVATE "-DGLEW_STATIC")
 target_link_libraries(MissingHUD2Hook
-    MinHook
     glew32
     soil2
     OpenGL32

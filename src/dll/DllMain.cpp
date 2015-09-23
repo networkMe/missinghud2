@@ -15,8 +15,8 @@
 #include <thread>
 
 #include <windows.h>
-#include <MinHook.h>
 
+#include "IATHook.h"
 #include "RebirthMemReader.h"
 #include "GDISwapBuffers.h"
 #include "ResourceLoader.h"
@@ -39,21 +39,17 @@ extern "C" DLL_PUBLIC void MHUD2_Start()
 {
     OutputDebugString("[MHUD2_Start] MissingHUD2 injected and starting.");
 
-    // Initialize MinHook library
-    if (MH_Initialize() != MH_OK)
-        FreeLibraryAndExitThread(dll_handle, EXIT_FAILURE);
-
     // Initialize any static objects we require that don't involve an OpenGL context
     ResourceLoader::Initialize(dll_handle);
     RebirthMemReader::GetMemoryReader();
 
-    // Hook the OpenGL SwapBuffers function
+    // Hook the OpenGL SwapBuffers function via IAT redirection
     GDISwapBuffers *gdi_swapbuffers = GDISwapBuffers::GetInstance();
-    if (MH_CreateHook(gdi_swapbuffers->GetGDI32HookAddr(), (LPVOID)&gdiSwapBuffersDetour, (LPVOID*)gdi_swapbuffers->GetEndpointAddr()) != MH_OK)
+    if (!IATHook::InitIATHook(GetModuleHandle(ISAAC_MODULE_NAME), "GDI32.dll", "SwapBuffers", (LPVOID)&gdiSwapBuffersDetour))
         FreeLibraryAndExitThread(dll_handle, EXIT_FAILURE);
 
-    // Enable the hooks
-    if (MH_EnableHook(gdi_swapbuffers->GetGDI32HookAddr()) != MH_OK)
+    // Enable the IAT hooks
+    if (!IATHook::EnableIATHook("SwapBuffers", (LPVOID*)gdi_swapbuffers->GetEndpointAddr()))
         FreeLibraryAndExitThread(dll_handle, EXIT_FAILURE);
 }
 
@@ -65,8 +61,8 @@ extern "C" DLL_PUBLIC void MHUD2_Stop()
     GDISwapBuffers *gdi_swapbuffers = GDISwapBuffers::GetInstance();
     gdi_swapbuffers->WaitForCleanup();
 
-    // Disable MinHook hooks
-    MH_DisableHook(gdi_swapbuffers->GetGDI32HookAddr());
+    // Disable IAT hooks
+    IATHook::DisableIATHook("SwapBuffers");
 
     // Wait for the hooks to be no longer active
     // aka. for Rebirth to exit our detours for the last time
@@ -77,8 +73,7 @@ extern "C" DLL_PUBLIC void MHUD2_Stop()
     ResourceLoader::Destroy();
     RebirthMemReader::Destroy();
 
-    // Destroy MinHook and exit our DLL, Rebirth should be a lot less informative now!
-    MH_Uninitialize();
+    // Exit our DLL, Rebirth should be a lot less informative now!
     FreeLibraryAndExitThread(dll_handle, EXIT_SUCCESS);
 }
 

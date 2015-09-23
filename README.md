@@ -4,7 +4,7 @@ Missing HUD 2 is an Open-GL powered informational overlay for the Binding of Isa
 The developers of Rebirth (Edmund McMillen, Nicalis) decided that one of their design decisions for the game would be to hide raw player statistics from the player as to not to overwhelm them.
 This project attempts to give the player the choice to see their raw statistics if they choose to.
 
-![Image of MissingHUD2](https://raw.githubusercontent.com/networkMe/missinghud2/master/doc/isaac-mhud2-example.jpg)
+![Image of MissingHUD2](https://raw.githubusercontent.com/networkMe/missinghud2/master/doc/isaac-mhud2-example-dwd.jpg)
 
 ## Using
 Missing HUD 2 aims to be nearly transparent to the user (and to Rebirth itself).
@@ -13,6 +13,9 @@ You simply run the main executable (which acts as the DLL injector) and the HUD 
 Note: The HUD only appears if you are in an active run.
 
 If you wish to no longer see the HUD, just close the main executable and the HUD will disappear (the DLL will be unloaded).
+
+The latest binary release can be found here:
+https://github.com/networkMe/missinghud2/releases/latest
 
 ## Current features
 * Works in fullscreen and windowed mode (as it's a direct OpenGL implementation)
@@ -32,7 +35,6 @@ Missing HUD 2 has the below dependencies:
   * [Qt5](http://www.qt.io/) (static version directory set manually in CMake)
   * [EasyLogging++](https://github.com/easylogging/easyloggingpp)
 2. Injected DLL
-  * [MinHook](https://github.com/TsudaKageyu/minhook)
   * [GLEW](https://github.com/nigels-com/glew)
   * [SOIL2](https://bitbucket.org/SpartanJ/soil2)
   
