@@ -26,7 +26,7 @@ https://github.com/networkMe/missinghud2/releases/latest
   * Shot speed
   * Damage
   * Luck
-  * TODO: Deal with the Devil % chance
+  * Deal with the Devil % chance
 
 ## Building
 Missing HUD 2 has the below dependencies:
