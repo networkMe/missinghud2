@@ -35,9 +35,9 @@ int APIENTRY DllMain(HMODULE h_dll, DWORD reason, LPVOID reserved)
     return TRUE;
 }
 
-extern "C" DLL_PUBLIC void HUD2_Start()
+extern "C" DLL_PUBLIC void MHUD2_Start()
 {
-    OutputDebugString("[HUD2_Start] MissingHUD2 injected and starting.");
+    OutputDebugString("[MHUD2_Start] MissingHUD2 injected and starting.");
 
     // Initialize MinHook library
     if (MH_Initialize() != MH_OK)
@@ -57,9 +57,9 @@ extern "C" DLL_PUBLIC void HUD2_Start()
         FreeLibraryAndExitThread(dll_handle, EXIT_FAILURE);
 }
 
-extern "C" DLL_PUBLIC void HUD2_Stop()
+extern "C" DLL_PUBLIC void MHUD2_Stop()
 {
-    OutputDebugString("[HUD2_Stop] MissingHUD2 exiting.");
+    OutputDebugString("[MHUD2_Stop] MissingHUD2 exiting.");
 
     // Tell our SwapBuffers detour to cleanup it's OpenGL stuff
     GDISwapBuffers *gdi_swapbuffers = GDISwapBuffers::GetInstance();

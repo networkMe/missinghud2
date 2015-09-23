@@ -71,7 +71,7 @@ bool BoIProcess::HookBoIProcess()
     LoadLibraryIntoBoI(remote_mem, "MissingHUD2Hook.dll");
 
     // Call "Start" method in the MissingHUD2Hook.dll
-    FARPROC start_addr = GetRemoteProcAddress(injected_dll_, "MissingHUD2Hook.dll", "HUD2_Start");
+    FARPROC start_addr = GetRemoteProcAddress(injected_dll_, "MissingHUD2Hook.dll", "MHUD2_Start");
     HANDLE rThread = CreateRemoteThread(process_, NULL, 0, (LPTHREAD_START_ROUTINE)start_addr, NULL, 0, NULL);
     if (rThread == NULL)
         throw std::runtime_error("[HookBoIProcess] Couldn't execute Start in our MissingHUD2Hook.dll.");
@@ -134,7 +134,7 @@ bool BoIProcess::UnhookBoIProcess()
     if (IsRunning())
     {
         // Call the "Stop" function on the injected DLL, it should clean everything up inside Isaac by itself
-        FARPROC stop_addr = GetRemoteProcAddress(injected_dll_, "MissingHUD2Hook.dll", "HUD2_Stop");
+        FARPROC stop_addr = GetRemoteProcAddress(injected_dll_, "MissingHUD2Hook.dll", "MHUD2_Stop");
         HANDLE rem_thread = CreateRemoteThread(process_, NULL, 0, (LPTHREAD_START_ROUTINE)stop_addr, NULL, 0, NULL);
         if (rem_thread == NULL)
             throw std::runtime_error("[HookBoIProcess] Couldn't execute Start in our MissingHUD2Hook.dll.");

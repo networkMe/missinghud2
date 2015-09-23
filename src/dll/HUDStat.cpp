@@ -23,22 +23,55 @@ HUDStat::~HUDStat()
 {
 }
 
-void HUDStat::Draw(glm::vec2 position, float stat_value)
+void HUDStat::Draw(glm::vec2 position, float stat_value, bool percentage)
 {
     // Draw icon sprite
     glm::vec2 icon_size(0.08f, 0.13f);
     SpriteSheet *icon_sprite = SpriteSheet::GetSpriteSheet(MHUD2_STAT_ICONS);
     icon_sprite->DrawSprite(position, icon_size, MHUD2STAT_STRING[hud_stat_]);
 
-    // Get value as string
-    std::stringstream val_stream;
-    val_stream.setf(std::ios::fixed, std::ios::floatfield);
-    val_stream.precision(1);
-    val_stream << stat_value;
+    // Draw statistic value
+    position.x += 0.075f;
+    position.y -= 0.0375f;
+    TextRenderer *isaac_text = TextRenderer::GetRenderer(MHUD2_ISAAC_FONT_PNG, MHUD2_ISAAC_FONT_CHARMAP);
+    isaac_text->RenderText(position, NumToStr(stat_value, percentage));
+}
+
+void HUDStat::Draw(glm::vec2 position, int stat_value)
+{
+    // Draw icon sprite
+    glm::vec2 icon_size(0.08f, 0.13f);
+    SpriteSheet *icon_sprite = SpriteSheet::GetSpriteSheet(MHUD2_STAT_ICONS);
+    icon_sprite->DrawSprite(position, icon_size, MHUD2STAT_STRING[hud_stat_]);
 
     // Draw statistic value
     position.x += 0.075f;
     position.y -= 0.0375f;
     TextRenderer *isaac_text = TextRenderer::GetRenderer(MHUD2_ISAAC_FONT_PNG, MHUD2_ISAAC_FONT_CHARMAP);
-    isaac_text->RenderText(position, val_stream.str());
+    isaac_text->RenderText(position, NumToStr(stat_value));
+}
+
+std::string HUDStat::NumToStr(float number, bool percentage)
+{
+    std::stringstream ss;
+
+    if (percentage)
+    {
+        ss << (number * 100) << "%";
+    }
+    else
+    {
+        ss.setf(std::ios::fixed, std::ios::floatfield);
+        ss.precision(1);
+        ss << number;
+    }
+
+    return ss.str();
+}
+
+std::string HUDStat::NumToStr(int number)
+{
+    std::stringstream ss;
+    ss << number;
+    return ss.str();
 }

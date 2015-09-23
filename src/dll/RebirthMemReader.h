@@ -15,12 +15,16 @@
 #ifndef MISSINGHUD2_REBIRTHMEMREADER_H
 #define MISSINGHUD2_REBIRTHMEMREADER_H
 
+#include <vector>
 #include <sstream>
 
 #include <windows.h>
 
+#include "RebirthMemSignatures.h"
+
 #define ISAAC_MODULE_NAME "isaac-ng.exe"
 
+// These values are the offsets of the specific statistic from the core Player memory address
 enum RebirthPlayerStat {
     kSpeed = 0xCB4,
     kRange = 0xBF4,
@@ -45,13 +49,23 @@ private:
     RebirthMemReader();
     ~RebirthMemReader();
 
-    DWORD GetPlayerManagerClassMemAddr();
-    DWORD GetPlayerClassMemAddr();
+    void GetRebirthModuleInfo();
+
+    // Note this function always returns the first signature it finds, so make sure it's unique
+    std::vector<unsigned char> SearchMemForVal(MemSig mem_sig);
+
+    DWORD GetPlayerManagerMemAddr();
+    DWORD GetPlayerListMemAddr();
+    DWORD GetPlayerMemAddr();
 
 private:
     static RebirthMemReader* mem_reader_;
 
-    DWORD base_address_ = 0;
+    DWORD module_address_ = 0;
+    DWORD module_size_ = 0;
+
+    DWORD player_manager_inst_p_addr_ = 0;
+    DWORD player_manager_player_list_offset_ = 0;
 };
 
 
