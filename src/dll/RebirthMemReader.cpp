@@ -96,6 +96,9 @@ float RebirthMemReader::GetDealWithDevilChance()
     if (current_floor == 1 || current_floor > 8)    // In-eligible for natural DWD on these floors (even with Goat Head)
         return 0.0f;
 
+    if (current_floor > current_floor_)
+        current_floor_ = current_floor;
+
     DWORD player = GetPlayerMemAddr();
     if (*((DWORD*)(player + PASSIVE_ITEM_GOATHEAD)) == 1)   // Goat Head is a guaranteed DWD (100%)
         return 1.0f;
@@ -136,23 +139,19 @@ float RebirthMemReader::GetDealWithDevilChance()
     }
     else
     {
-        if (current_floor > current_floor_)
-        {
-            // This method brings a bug where if a player restarts on the first floor
-            // after taking damage to the boss, they will not get back the +35% boss fight chance until
-            // they go down to Basement/Cellar II.
-            // Complicated to rectify and only minor.
+        // This works to replicate how Rebirth handles boss fight damage.
+        // On the first roll of the DWD chance it takes into account whether you took damage or not.
+        // However, subsequent rolls (to keep the door open) ALWAYS add the +35% chance,
+        // regardless of whether you took boss damage or not.
+        if (boss_fight_took_dmg_)
             boss_fight_took_dmg_ = false;
-            current_floor_ = current_floor;
-        }
     }
 
     if (!boss_fight_took_dmg_)      // Not taking damage from the boss fight adds 35% chance
         dwd_chance += 0.35f;
 
-
     DWORD devil_deal_prev_floor = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_DEVILDEAL_PREV_FLOOR));
-    if (devil_deal_prev_floor > 0 && devil_deal_prev_floor != current_floor)
+    if (devil_deal_prev_floor > 0)
     {
         int devil_deal_num_floors_ago = current_floor_ - (int)devil_deal_prev_floor;
         if (devil_deal_num_floors_ago < 2)
