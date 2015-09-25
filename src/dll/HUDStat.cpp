@@ -17,6 +17,23 @@
 HUDStat::HUDStat(MHUDSTAT mhud_stat)
 {
     hud_stat_ = mhud_stat;
+
+    Color green(0, 200, 0);
+    Color red(200, 0, 0);
+    switch (mhud_stat)
+    {
+        case MHUDSTAT::kStat_FireRate:
+        {
+            negative_color_ = green;
+            positive_color_ = red;
+        } break;
+
+        default:
+        {
+            positive_color_ = green;
+            negative_color_ = red;
+        }
+    }
 }
 
 HUDStat::~HUDStat()
@@ -39,9 +56,9 @@ void HUDStat::Draw(glm::vec2 position, float stat_value, float stat_change, bool
     // Draw the change in statistic value if it recently changed
     position.x += text_render_size.x;
     if (stat_change > 0.0f)
-        isaac_text->RenderText(position, "+" + NumToStr(stat_change, percentage), Color(0, 200, 0));
+        isaac_text->RenderText(position, "+" + NumToStr(stat_change, percentage), positive_color_);
     else if (stat_change < 0.0f)
-        isaac_text->RenderText(position, NumToStr(stat_change, percentage), Color(200, 0, 0));  // Negative symbol automatic via C++
+        isaac_text->RenderText(position, NumToStr(stat_change, percentage), negative_color_);  // Negative symbol automatic via C++
 }
 
 void HUDStat::Draw(glm::vec2 position, int stat_value, int stat_change)
@@ -60,9 +77,9 @@ void HUDStat::Draw(glm::vec2 position, int stat_value, int stat_change)
     // Draw the change in statistic value if it recently changed
     position.x += text_render_size.x;
     if (stat_change > 0)
-        isaac_text->RenderText(position, "+" + NumToStr(stat_change), Color(0, 200, 0));
+        isaac_text->RenderText(position, "+" + NumToStr(stat_change), positive_color_);
     else if (stat_change < 0)
-        isaac_text->RenderText(position, NumToStr(stat_change), Color(200, 0, 0)); // Negative symbol automatic via C++
+        isaac_text->RenderText(position, NumToStr(stat_change), negative_color_); // Negative symbol automatic via C++
 }
 
 std::string HUDStat::NumToStr(float number, bool percentage)

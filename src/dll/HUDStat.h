@@ -65,6 +65,8 @@ public:
 
 private:
     MHUDSTAT hud_stat_;
+    Color positive_color_;
+    Color negative_color_;
 };
 
 
