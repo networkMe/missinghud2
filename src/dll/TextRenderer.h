@@ -33,7 +33,8 @@ public:
     static TextRenderer *GetRenderer(RESID font_res_id, RESID font_charmap);
     static void DestroyAll();
 
-    void RenderText(glm::vec2 position, std::string text);
+    // Returns a vector object specifying the OpenGL height/width of the rendered text
+    glm::vec2 RenderText(glm::vec2 position, std::string text, Color text_color);
 
 private:
     TextRenderer(RESID font_res_id, RESID font_charmap);

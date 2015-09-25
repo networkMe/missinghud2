@@ -73,6 +73,9 @@ float RebirthMemReader::GetPlayerStatf(RebirthPlayerStat player_stat)
         stat_val *= -1; // Range is stored as a negative, but we show it positive on the HUD
     }
 
+    // Save the stat into our memory
+    SaveStat(player_stat, stat_val);
+
     return stat_val;
 }
 
@@ -83,6 +86,10 @@ int RebirthMemReader::GetPlayerStati(RebirthPlayerStat player_stat)
         return 0;
 
     int stat_val = *((int*)(player_class + player_stat));
+
+    // Save the stat into our memory
+    SaveStat(player_stat, (float)stat_val);
+
     return stat_val;
 }
 
@@ -103,15 +110,18 @@ float RebirthMemReader::GetDealWithDevilChance()
         current_floor_ = current_floor;
 
     DWORD player = GetPlayerMemAddr();
-    if (*((DWORD*)(player + PASSIVE_ITEM_GOATHEAD)) == 1)   // Goat Head is a guaranteed DWD (100%)
+    if (*((DWORD*)(player + PASSIVE_ITEM_GOATHEAD)) != 0)       // Goat Head is a guaranteed DWD (100%)
         return 1.0f;
 
     float dwd_chance = 0.01f; // Default 1% chance
 
-    if (*((DWORD*)(player + PASSIVE_ITEM_PENTAGRAM)) == 1)      // Pentagram adds 20% chance
+    if (*((DWORD*)(player + PASSIVE_ITEM_PENTAGRAM)) != 0)      // Pentagram adds 20% chance
         dwd_chance += 0.20f;
 
-    if (*((DWORD*)(player + PASSIVE_ITEM_BLACKCANDLE)) == 1)    // Black Candle adds 30% chance
+    if (*((DWORD*)(player + PASSIVE_ITEM_PENTAGRAM)) > 1)       // Having more than one pentagram adds another 10% chance
+        dwd_chance += 0.10f;
+
+    if (*((DWORD*)(player + PASSIVE_ITEM_BLACKCANDLE)) != 0)    // Black Candle adds 30% chance
         dwd_chance += 0.30f;
 
     DWORD player_active_item = *((DWORD*)(player + ITEM_ACTIVE_SLOT));
@@ -121,13 +131,13 @@ float RebirthMemReader::GetDealWithDevilChance()
         dwd_chance += 25.00f;
 
     BYTE floor_flag = *((BYTE*)(player_manager_inst + PLAYER_MANAGER_FLOOR_FLAGS));
-    if (floor_flag & 1)                 // Killing a normal beggar adds 35% chance
+    if (floor_flag & 1)                                         // Killing a normal beggar adds 35% chance
         dwd_chance += 0.35f;
 
     DWORD floor_flags = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_FLOOR_FLAGS));
-    if (((floor_flags >> 2) & 1) <= 0)  // Not taking red heart damage on the entire floor adds 99% chance
+    if (((floor_flags >> 2) & 1) <= 0)                          // Not taking red heart damage on the entire floor adds 99% chance
         dwd_chance += 0.99f;
-    if (((floor_flags >> 6) & 1) > 0)   // Blowing up a dead shopkeeper adds 10% chance
+    if (((floor_flags >> 6) & 1) > 0)                           // Blowing up a dead shopkeeper adds 10% chance
         dwd_chance += 0.10f;
 
     // Not taking damage from the floor's boss room adds 35% chance to DWD chance
@@ -170,7 +180,64 @@ float RebirthMemReader::GetDealWithDevilChance()
     if (dwd_chance > 1.00f)
         dwd_chance = 1.00f;
 
+    // Save the stat into our memory
+    SaveStat(RebirthPlayerStat::kDealWithDevil , dwd_chance);
+
     return dwd_chance;
+}
+
+void RebirthMemReader::SaveStat(RebirthPlayerStat player_stat, float stat_val)
+{
+    // If the stat is different from the one in our memory, note it
+    if (stat_change_.count(player_stat) > 0)
+    {
+        if (stat_change_[player_stat].new_stat_val != stat_val)
+        {
+            stat_change_[player_stat].prev_stat_val = stat_change_[player_stat].new_stat_val;
+            stat_change_[player_stat].new_stat_val = stat_val;
+            stat_change_[player_stat].stat_diff = stat_change_[player_stat].new_stat_val - stat_change_[player_stat].prev_stat_val;
+            stat_change_[player_stat].time_changed = std::chrono::system_clock::now();
+        }
+    }
+    else
+    {
+        RecentStatChange new_stat_change;
+        new_stat_change.stat = player_stat;
+        new_stat_change.prev_stat_val = stat_val;
+        new_stat_change.new_stat_val = stat_val;
+        new_stat_change.time_changed = new_stat_change.time_changed - new_stat_change.show_timeout; // We don't want the initial 0->X change to show
+        stat_change_[player_stat] = new_stat_change;
+    }
+}
+
+float RebirthMemReader::GetPlayerRecentStatChangef(RebirthPlayerStat player_stat)
+{
+    float recent_stat_change = 0.0f;
+
+    if (stat_change_.count(player_stat) > 0)
+    {
+        if (stat_change_[player_stat].time_changed > (std::chrono::system_clock::now() - stat_change_[player_stat].show_timeout))
+        {
+            return stat_change_[player_stat].stat_diff;
+        }
+    }
+
+    return recent_stat_change;
+}
+
+int RebirthMemReader::GetPlayerRecentStatChangei(RebirthPlayerStat player_stat)
+{
+    int recent_stat_change = 0;
+
+    if (stat_change_.count(player_stat) > 0)
+    {
+        if (stat_change_[player_stat].time_changed > (std::chrono::system_clock::now() - stat_change_[player_stat].show_timeout))
+        {
+            return (int)stat_change_[player_stat].stat_diff;
+        }
+    }
+
+    return recent_stat_change;
 }
 
 DWORD RebirthMemReader::GetPlayerManagerMemAddr()

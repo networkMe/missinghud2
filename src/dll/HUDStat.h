@@ -57,8 +57,8 @@ public:
     HUDStat(MHUDSTAT mhud_stat);
     ~HUDStat();
 
-    void Draw(glm::vec2 position, float stat_value, bool percentage = false);
-    void Draw(glm::vec2 position, int stat_value);
+    void Draw(glm::vec2 position, float stat_value, float stat_change, bool percentage = false);
+    void Draw(glm::vec2 position, int stat_value, int stat_change);
 
     std::string NumToStr(float number, bool percentage = false);
     std::string NumToStr(int number);

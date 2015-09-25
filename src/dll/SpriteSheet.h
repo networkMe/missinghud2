@@ -39,7 +39,8 @@ public:
     static void DestroySpriteSheet(RESID spritesheet_res_id);
     static void DestroyAllSpriteSheets();
 
-    void DrawSprite(glm::vec2 position, glm::vec2 size, std::string sprite_name);
+    void DrawSprite(glm::vec2 position, glm::vec2 size, std::string sprite_name,
+                    glm::vec3 sprite_color = glm::vec3(1.0f, 1.0f, 1.0f));
 
 private:
     SpriteSheet(RESID spritesheet_res_id, RESID spritesheet_tex_map, SPRITESIZE sprite_size, bool invert_img_y);

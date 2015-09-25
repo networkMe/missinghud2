@@ -158,7 +158,7 @@ void SpriteSheet::GenerateDynamicVertex(int alloced_vertexes)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void SpriteSheet::DrawSprite(glm::vec2 position, glm::vec2 size, std::string sprite_name)
+void SpriteSheet::DrawSprite(glm::vec2 position, glm::vec2 size, std::string sprite_name, glm::vec3 sprite_color)
 {
     // Get the GLSL shaders required
     ShaderProgram *spritesheet_shader = ShaderProgram::GetProgram(OPENGL_HUD_SPRITE_VERTEX_SHADER,
@@ -180,6 +180,7 @@ void SpriteSheet::DrawSprite(glm::vec2 position, glm::vec2 size, std::string spr
 
     // Actually draw the sprite
     spritesheet_shader->Use();
+    glUniform3f(glGetUniformLocation(spritesheet_shader->GetProgID(), "texture_color"), sprite_color.r, sprite_color.g, sprite_color.b);
     glBindTexture(GL_TEXTURE_2D, spritesheet_texture_);
 
     glBindBuffer(GL_ARRAY_BUFFER, array_buffer_);

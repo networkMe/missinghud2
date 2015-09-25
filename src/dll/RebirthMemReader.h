@@ -15,8 +15,10 @@
 #ifndef MISSINGHUD2_REBIRTHMEMREADER_H
 #define MISSINGHUD2_REBIRTHMEMREADER_H
 
+#include <map>
 #include <vector>
 #include <sstream>
+#include <chrono>
 
 #include <windows.h>
 
@@ -54,6 +56,16 @@ enum RebirthPlayerStat {
     kDealWithDevil = 0xFFFFFFFF  // An advanced function is required for this statistic
 };
 
+struct RecentStatChange
+{
+    RebirthPlayerStat stat;
+    float prev_stat_val = 0.0f;
+    float new_stat_val = 0.0f;
+    float stat_diff = 0.0f;
+    std::chrono::time_point<std::chrono::system_clock> time_changed = std::chrono::system_clock::now();
+    std::chrono::milliseconds show_timeout = std::chrono::milliseconds(3000);
+};
+
 class RebirthMemReader
 {
 public:
@@ -63,6 +75,9 @@ public:
     bool IsRunActive();
     float GetPlayerStatf(RebirthPlayerStat player_stat);
     int GetPlayerStati(RebirthPlayerStat player_stat);
+
+    float GetPlayerRecentStatChangef(RebirthPlayerStat player_stat);
+    int GetPlayerRecentStatChangei(RebirthPlayerStat player_stat);
 
 private:
     RebirthMemReader();
@@ -78,8 +93,9 @@ private:
     DWORD GetPlayerMemAddr();
 
     float GetDealWithDevilChance();
-
     DWORD GetCurrentRoom();
+
+    void SaveStat(RebirthPlayerStat player_stat, float stat_val);
 
 private:
     static RebirthMemReader* mem_reader_;
@@ -92,6 +108,7 @@ private:
 
     int current_floor_ = 0;
     bool boss_fight_took_dmg_ = false;
+    std::map<RebirthPlayerStat, RecentStatChange> stat_change_;
 };
 
 

@@ -52,14 +52,20 @@ TextRenderer::~TextRenderer()
     SpriteSheet::DestroySpriteSheet(res_id_);
 }
 
-void TextRenderer::RenderText(glm::vec2 position, std::string text)
+glm::vec2 TextRenderer::RenderText(glm::vec2 position, std::string text, Color text_color)
 {
     SpriteSheet *text_sprites = SpriteSheet::GetSpriteSheet(res_id_);
+    glm::vec2 text_render_size(0, 0.06f);
+    glm::vec3 gl_text_color((text_color.r / 255.0f), (text_color.g / 255.0f), (text_color.b / 255.0f));
 
     for (char text_ch : text)
     {
         char sprite_letter[2] = { text_ch, '\0' };
-        text_sprites->DrawSprite(position, glm::vec2(0.04f, 0.06f), std::string(sprite_letter));
+        text_sprites->DrawSprite(position, glm::vec2(0.04f, 0.06f), std::string(sprite_letter), gl_text_color);
         position.x += 0.018f;
+        text_render_size.x += 0.018f;
     }
+    text_render_size += 0.018f;
+
+    return text_render_size;
 }

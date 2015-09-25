@@ -59,29 +59,36 @@ void HUDOverlay::DrawHUD(HDC hdc)
     base_hud_stats_menu.y = 0.1f;
 
     HUDStat speed_stat(MHUDSTAT::kStat_Speed);
-    speed_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kSpeed));
+    speed_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kSpeed),
+                    mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kSpeed));
 
     base_hud_stats_menu.y -= 0.1f;
     HUDStat range_stat(MHUDSTAT::kStat_Range);
-    range_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kRange));
+    range_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kRange),
+                    mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kRange));
 
     base_hud_stats_menu.y -= 0.1f;
     HUDStat firerate_stat(MHUDSTAT::kStat_FireRate);
-    firerate_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStati(RebirthPlayerStat::kTearsDelay));
+    firerate_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStati(RebirthPlayerStat::kTearsDelay),
+                       mem_reader->GetPlayerRecentStatChangei(RebirthPlayerStat::kTearsDelay));
 
     base_hud_stats_menu.y -= 0.1f;
     HUDStat shotspeed_stat(MHUDSTAT::kStat_ShotSpeed);
-    shotspeed_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kShotSpeed));
+    shotspeed_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kShotSpeed),
+                        mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kShotSpeed));
 
     base_hud_stats_menu.y -= 0.1f;
     HUDStat damage_stat(MHUDSTAT::kStat_Damage);
-    damage_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDamage));
+    damage_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDamage),
+                     mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kDamage));
 
     base_hud_stats_menu.y -= 0.1f;
     HUDStat luck_stat(MHUDSTAT::kStat_Luck);
-    luck_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kLuck));
+    luck_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kLuck),
+                   mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kLuck));
 
     base_hud_stats_menu.y -= 0.1f;
     HUDStat dwd_stat(MHUDSTAT::kStat_DealWithDevil);
-    dwd_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDealWithDevil), true);
+    dwd_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDealWithDevil),
+                  mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kDealWithDevil), true);
 }

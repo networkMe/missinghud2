@@ -23,7 +23,7 @@ HUDStat::~HUDStat()
 {
 }
 
-void HUDStat::Draw(glm::vec2 position, float stat_value, bool percentage)
+void HUDStat::Draw(glm::vec2 position, float stat_value, float stat_change, bool percentage)
 {
     // Draw icon sprite
     glm::vec2 icon_size(0.08f, 0.13f);
@@ -34,10 +34,17 @@ void HUDStat::Draw(glm::vec2 position, float stat_value, bool percentage)
     position.x += 0.075f;
     position.y -= 0.0375f;
     TextRenderer *isaac_text = TextRenderer::GetRenderer(MHUD2_ISAAC_FONT_PNG, MHUD2_ISAAC_FONT_CHARMAP);
-    isaac_text->RenderText(position, NumToStr(stat_value, percentage));
+    glm::vec2 text_render_size = isaac_text->RenderText(position, NumToStr(stat_value, percentage), Color(255, 255, 255));
+
+    // Draw the change in statistic value if it recently changed
+    position.x += text_render_size.x;
+    if (stat_change > 0.0f)
+        isaac_text->RenderText(position, "+" + NumToStr(stat_change, percentage), Color(0, 200, 0));
+    else if (stat_change < 0.0f)
+        isaac_text->RenderText(position, NumToStr(stat_change, percentage), Color(200, 0, 0));  // Negative symbol automatic via C++
 }
 
-void HUDStat::Draw(glm::vec2 position, int stat_value)
+void HUDStat::Draw(glm::vec2 position, int stat_value, int stat_change)
 {
     // Draw icon sprite
     glm::vec2 icon_size(0.08f, 0.13f);
@@ -48,7 +55,14 @@ void HUDStat::Draw(glm::vec2 position, int stat_value)
     position.x += 0.075f;
     position.y -= 0.0375f;
     TextRenderer *isaac_text = TextRenderer::GetRenderer(MHUD2_ISAAC_FONT_PNG, MHUD2_ISAAC_FONT_CHARMAP);
-    isaac_text->RenderText(position, NumToStr(stat_value));
+    glm::vec2 text_render_size = isaac_text->RenderText(position, NumToStr(stat_value), Color(255, 255, 255));
+
+    // Draw the change in statistic value if it recently changed
+    position.x += text_render_size.x;
+    if (stat_change > 0)
+        isaac_text->RenderText(position, "+" + NumToStr(stat_change), Color(0, 200, 0));
+    else if (stat_change < 0)
+        isaac_text->RenderText(position, NumToStr(stat_change), Color(200, 0, 0)); // Negative symbol automatic via C++
 }
 
 std::string HUDStat::NumToStr(float number, bool percentage)
