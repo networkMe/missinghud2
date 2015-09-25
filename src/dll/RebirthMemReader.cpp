@@ -93,6 +93,9 @@ float RebirthMemReader::GetDealWithDevilChance()
         return 0.0f;
 
     int current_floor = *((int*)player_manager_inst);
+    int labyrinth_flag = *((int*)((DWORD)player_manager_inst + PLAYER_MANAGER_CURSE_FLAGS)); // Need to take into account whether the floor is a labyrinth cursed floor
+    if (labyrinth_flag == LABYRINTH_CURSE)
+        ++current_floor;
     if (current_floor == 1 || current_floor > 8)    // In-eligible for natural DWD on these floors (even with Goat Head)
         return 0.0f;
 

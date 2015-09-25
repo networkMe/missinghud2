@@ -40,6 +40,9 @@
 
 #define BOSS_FIGHT_TOOK_RED_DMG 0xE8C
 
+#define PLAYER_MANAGER_CURSE_FLAGS 0x8
+#define LABYRINTH_CURSE 0x2
+
 // These values are the offsets of the specific statistic from the core Player memory address
 enum RebirthPlayerStat {
     kSpeed = 0xCB4,
