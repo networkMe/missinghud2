@@ -18,6 +18,8 @@
 #include <iostream>
 #include <stdexcept>
 #include <functional>
+#include <thread>
+#include <chrono>
 
 #include <QCoreApplication>
 #include <easylogging++.h>
@@ -37,11 +39,13 @@ public:
 
     bool HookBoIProcess();
     bool IsRunning();
+    bool MHUD2Active();
 
 private:
     BoIProcess();
     ~BoIProcess();
 
+    bool EnableDebugPrivilege();
     HMODULE LoadLibraryIntoBoI(LPVOID remote_mem, std::string library_path);
     FARPROC GetRemoteProcAddress(HMODULE rem_dll_module, std::string rem_module_name, std::string proc_name);
     bool UnhookBoIProcess();
@@ -50,6 +54,7 @@ private:
     static BoIProcess* instance_;
 
     HANDLE process_ = NULL;
+    DWORD process_id_ = 0;
     HMODULE injected_dll_ = NULL;
 };
 

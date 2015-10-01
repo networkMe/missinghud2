@@ -18,6 +18,7 @@
 #include <string>
 #include <map>
 
+#include <easylogging++.h>
 #include <windows.h>
 #include <winnt.h>
 
@@ -26,7 +27,7 @@ struct IATHookInfo
     bool hook_enabled = false;
 
     HMODULE app_module = 0;
-    std::string target_module;
+    std::string target_module_name;
     std::string proc_name;
     LPVOID detour_proc = nullptr;
     LPVOID orig_proc_addr = nullptr;
@@ -37,10 +38,10 @@ struct IATHookInfo
 class IATHook
 {
 public:
-    static bool InitIATHook(HMODULE app_module, std::string target_module, std::string proc_name, LPVOID detour_proc);
+    static void InitIATHook(HMODULE app_module, std::string target_module_name, std::string proc_name, LPVOID detour_proc);
 
-    static bool EnableIATHook(std::string proc_name, LPVOID *orig_proc_addr);
-    static bool DisableIATHook(std::string proc_name);
+    static void EnableIATHook(std::string proc_name, LPVOID *orig_proc_addr);
+    static void DisableIATHook(std::string proc_name);
 
 private:
     static std::map<std::string, IATHookInfo> iat_hooks_;

@@ -72,13 +72,26 @@ LPVOID GDISwapBuffers::GetGDI32HookAddr()
     return orig_swap_buffers_addr_;
 }
 
-void GDISwapBuffers::CustomizeFrame(HDC hdc)
+bool GDISwapBuffers::CustomizeFrame(HDC hdc)
 {
     // Initialize the GLEW OpenGL library on our first frame render (it requires a valid OpenGL context)
     if (!glew_ready_)
     {
         glewExperimental = GL_TRUE;
-        glewInit();
+        GLenum glew_result = glewInit();
+        if (glew_result != GLEW_OK)
+        {
+            LOG(ERROR) << "glewInit failed with error: " << glew_result << " (" << glewGetErrorString(glew_result) << ")";
+            return false;
+        }
+
+        // MHUD2 requires minimum OpenGL 3.3 support (it was released early 2010)
+        if (!GLEW_VERSION_3_3)
+        {
+            LOG(ERROR) << "MHUD2 requires OpenGL 3.3 graphics driver support.";
+            return false;
+        }
+
         glew_ready_ = true;
     }
 
@@ -95,4 +108,6 @@ void GDISwapBuffers::CustomizeFrame(HDC hdc)
     // Re-enable DEPTH_TEST if it was enabled
     if (orig_depthtest_val)
         glEnable(GL_DEPTH_TEST);
+
+    return true;
 }

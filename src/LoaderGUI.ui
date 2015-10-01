@@ -9,15 +9,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>321</width>
-    <height>171</height>
+    <width>320</width>
+    <height>176</height>
    </rect>
-  </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string>Missing HUD 2 Loader</string>
@@ -33,10 +27,10 @@
       <x>10</x>
       <y>10</y>
       <width>302</width>
-      <height>158</height>
+      <height>164</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="VerticalLayout">
+    <layout class="QVBoxLayout" name="MainVLayout">
      <property name="spacing">
       <number>5</number>
      </property>
@@ -76,32 +70,59 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="MHUD2Version">
-       <property name="enabled">
-        <bool>true</bool>
+      <layout class="QHBoxLayout" name="UpdateHLayout" stretch="1,0">
+       <property name="spacing">
+        <number>6</number>
        </property>
-       <property name="lineWidth">
-        <number>1</number>
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
        </property>
-       <property name="text">
-        <string>&lt;a href=&quot;https://github.com/networkMe/missinghud2/releases&quot;&gt;v1.2.1&lt;/a&gt;</string>
-       </property>
-       <property name="textFormat">
-        <enum>Qt::RichText</enum>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="margin">
-        <number>0</number>
-       </property>
-       <property name="indent">
-        <number>5</number>
-       </property>
-       <property name="openExternalLinks">
-        <bool>true</bool>
-       </property>
-      </widget>
+       <item alignment="Qt::AlignRight">
+        <widget class="QPushButton" name="UpdateCheck">
+         <property name="font">
+          <font>
+           <family>Segoe UI</family>
+          </font>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: #555;</string>
+         </property>
+         <property name="text">
+          <string notr="true">Check for updates...</string>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="Version">
+         <property name="font">
+          <font>
+           <family>Segoe UI</family>
+          </font>
+         </property>
+         <property name="text">
+          <string>&lt;a href=&quot;https://github.com/networkMe/missinghud2/releases&quot;&gt;v1.2.2&lt;/a&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="indent">
+          <number>5</number>
+         </property>
+         <property name="openExternalLinks">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>

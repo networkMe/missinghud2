@@ -20,6 +20,7 @@
 #include <sstream>
 #include <chrono>
 
+#include <easylogging++.h>
 #include <windows.h>
 
 #include "RebirthMemSignatures.h"
@@ -46,7 +47,8 @@
 #define LABYRINTH_CURSE 0x2
 
 // These values are the offsets of the specific statistic from the core Player memory address
-enum RebirthPlayerStat {
+enum RebirthPlayerStat
+{
     kSpeed = 0xCB4,
     kRange = 0xBF4,
     kTearsDelay = 0xBE0,
@@ -110,6 +112,5 @@ private:
     bool boss_fight_took_dmg_ = false;
     std::map<RebirthPlayerStat, RecentStatChange> stat_change_;
 };
-
 
 #endif //MISSINGHUD2_REBIRTHMEMREADER_H

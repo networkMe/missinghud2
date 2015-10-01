@@ -25,24 +25,26 @@ struct MemSig
 
 
 
-// 8B 1D B4 C4 2D 01        | mov ebx,dword ptr ds:[<&timeGetTime>]         |
-// C7 05 6C E4 33 01 40 5D  | mov dword ptr ds:[133E46C],isaac-ng.1275D40   |
-// C7 05 70 E4 33 01 D0 5D  | mov dword ptr ds:[133E470],isaac-ng.1275DD0   |
-// C7 05 74 E4 33 01 10 5E  | mov dword ptr ds:[133E474],isaac-ng.1275E10   |
-// FF D3                    | call ebx                                      |
-// A3 F0 A1 33 01           | mov dword ptr ds:[133A1F0],eax                |  <== 0x133A1F0 is the address required
+// =============================================================
+// The below signatures are valid for Isaac Rebirth 1.00 -> 1.05
+// =============================================================
+
+
+
+// 33 C0                 | xor eax,eax                          |
+// C7 45 FC FF FF FF FF  | mov dword ptr ss:[ebp-4],FFFFFFFF    |
+// A3 F4 A1 3E 01        | mov dword ptr ds:[13EA1F4],eax       |  <== 13EA1F4 is the address we want
+// E8 30 EF F7 FF        | call isaac-ng.127C490                |
 const static unsigned char PlayerManagerInstAddrSig[] =
 {
-    0x8B, 0x1D, 0x00, 0x00, 0x00, 0x00,
-    0xC7, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0xC7, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0xC7, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0xFF, 0xD3,
-    0xA3, 0x00, 0x00, 0x00, 0x00
+    0x33, 0xC0,
+    0xC7, 0x45, 0xFC, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xA3, 0x00, 0x00, 0x00, 0x00,
+    0xE8
 };
 const static MemSig PlayerManagerInstAddr = {
     PlayerManagerInstAddrSig,
-    "bb????bb????????bb????????bb????????bbbvvvv"
+    "bbbbbbbbbbvvvvb"
 };
 
 

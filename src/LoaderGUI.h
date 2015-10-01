@@ -16,14 +16,22 @@
 #define BOISTATSREBORN_LOADERGUI_H
 
 #include <QtWidgets>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 #include <QtWinExtras>
 
 #include <iostream>
 #include <thread>
 #include <chrono>
 
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/document.h>
+
 #include "ui_LoaderGUI.h"
 #include "BoIInjector.h"
+
+#define MHUD2_VERSION "v1.2.2"
 
 Q_DECLARE_METATYPE(std::string);
 
@@ -36,9 +44,14 @@ public:
 
     void ConnectSlots(BoIInjector &injector);
 
+protected:
+    void showEvent(QShowEvent *event);
+
 private slots:
+    void CheckForUpdates(bool checked = false);
     void OnInjectionStatusChange(InjectStatus s);
     void OnFatalError(std::string err_msg);
+    void OnUpdateResponse(QNetworkReply* response);
 
 private:
     Ui::LoaderGUI ui_;

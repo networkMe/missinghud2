@@ -35,7 +35,7 @@ public:
     static GDISwapBuffers *GetInstance();
     static void Destroy();
 
-    void CustomizeFrame(HDC hdc);
+    bool CustomizeFrame(HDC hdc);
 
     void Cleanup();
     void WaitForCleanup();

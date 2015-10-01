@@ -39,13 +39,11 @@ RebirthMemReader::RebirthMemReader()
 
 RebirthMemReader::~RebirthMemReader()
 {
-
 }
 
 bool RebirthMemReader::IsRunActive()
 {
-    // To check wether a run is currently active I check how many players there are
-    // (just like Rebirth actually does)
+    // To check whether a run is currently active I check how many players there are (just like Rebirth actually does)
     // When there are 0 players, then we are not in a run
     DWORD player_list = GetPlayerListMemAddr();
     if (player_list == 0)
@@ -59,7 +57,9 @@ float RebirthMemReader::GetPlayerStatf(RebirthPlayerStat player_stat)
 {
     if (player_stat == RebirthPlayerStat::kDealWithDevil)
     {
-        return GetDealWithDevilChance();
+        float devil_chance = GetDealWithDevilChance();
+        SaveStat(RebirthPlayerStat::kDealWithDevil, devil_chance);
+        return devil_chance;
     }
 
     DWORD player_class = GetPlayerMemAddr();
@@ -75,7 +75,6 @@ float RebirthMemReader::GetPlayerStatf(RebirthPlayerStat player_stat)
 
     // Save the stat into our memory
     SaveStat(player_stat, stat_val);
-
     return stat_val;
 }
 
@@ -89,7 +88,6 @@ int RebirthMemReader::GetPlayerStati(RebirthPlayerStat player_stat)
 
     // Save the stat into our memory
     SaveStat(player_stat, (float)stat_val);
-
     return stat_val;
 }
 
@@ -179,9 +177,6 @@ float RebirthMemReader::GetDealWithDevilChance()
 
     if (dwd_chance > 1.00f)
         dwd_chance = 1.00f;
-
-    // Save the stat into our memory
-    SaveStat(RebirthPlayerStat::kDealWithDevil , dwd_chance);
 
     return dwd_chance;
 }
@@ -277,6 +272,9 @@ DWORD RebirthMemReader::GetPlayerMemAddr()
 DWORD RebirthMemReader::GetCurrentRoom()
 {
     DWORD player_manager_inst = GetPlayerManagerMemAddr();
+    if (player_manager_inst == 0)
+        return 0;
+
     DWORD room_code = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_ROOM_CODE));
     DWORD room_num = *((DWORD*)(player_manager_inst + (room_code * 4) + 0x5AC4));
     return room_num;
@@ -288,28 +286,32 @@ void RebirthMemReader::GetRebirthModuleInfo()
     DWORD module_handle = (DWORD)GetModuleHandle(ISAAC_MODULE_NAME);
     MEMORY_BASIC_INFORMATION rebirth_mem = { 0 };
     if (VirtualQuery((LPVOID)module_handle, &rebirth_mem, sizeof(rebirth_mem)) == 0)
-        return;
+        throw std::runtime_error("Unable to get memory information for Isaac.");
 
     IMAGE_DOS_HEADER *dos_header = (IMAGE_DOS_HEADER*)module_handle;
     IMAGE_NT_HEADERS *pe_header = (IMAGE_NT_HEADERS*)((DWORD)dos_header->e_lfanew + (DWORD)rebirth_mem.AllocationBase);
     if (dos_header->e_magic != IMAGE_DOS_SIGNATURE || pe_header->Signature != IMAGE_NT_SIGNATURE)
-        return;
+        throw std::runtime_error("The Rebirth memory being accessed is incorrect.");
 
     module_address_ = (DWORD)rebirth_mem.AllocationBase;
     module_size_ = pe_header->OptionalHeader.SizeOfImage;
+    LOG(INFO) << "Rebirth module address: 0x" << std::hex << module_address_;
+    LOG(INFO) << "Rebirth module size: " << std::hex << module_size_;
 
     // Find the static address pointer of the Rebirth PlayerManager instance
     std::vector<unsigned char> player_manager_inst_address_p_bytes_ = SearchMemForVal(PlayerManagerInstAddr);
     if (player_manager_inst_address_p_bytes_.size() < 4)
-        return;
-    player_manager_inst_p_addr_ = *((DWORD*)player_manager_inst_address_p_bytes_.data()) + 4;
+        throw std::runtime_error("Couldn't find the PlayerManager static instance address");
+    player_manager_inst_p_addr_ = *((DWORD*)player_manager_inst_address_p_bytes_.data());
+    LOG(INFO) << "PlayerManager Instance **: " << std::hex << player_manager_inst_p_addr_;
 
     // Find the offset of the Players list relative to the PlayerManager instance
     *((DWORD*)(PlayerManagerPlayerListOffset.signature + 2)) = player_manager_inst_p_addr_;
     std::vector<unsigned char> player_manager_player_list_offset_bytes_ = SearchMemForVal(PlayerManagerPlayerListOffset);
     if (player_manager_player_list_offset_bytes_.size() < 2)
-        return;
+        throw std::runtime_error("Couldn't find the PlayerManager PlayerList offset");
     player_manager_player_list_offset_ = *((WORD*)player_manager_player_list_offset_bytes_.data());
+    LOG(INFO) << "PlayerManager PlayerList offset: " << std::hex << player_manager_player_list_offset_;
 }
 
 std::vector<unsigned char> RebirthMemReader::SearchMemForVal(MemSig mem_sig)
@@ -319,7 +321,7 @@ std::vector<unsigned char> RebirthMemReader::SearchMemForVal(MemSig mem_sig)
     unsigned char* p_search = (unsigned char*)module_address_;
     unsigned char* p_search_end = (unsigned char*)(module_address_ + module_size_ - sig_len);
 
-    while (p_search < p_search_end)
+    while (p_search <= p_search_end)
     {
         int matching_bytes = 0;
         for (int i = 0; i < sig_len; ++i)

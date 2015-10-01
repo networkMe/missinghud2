@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 
     // Initialize file logger
     InitializeEasyLogging(argc, argv);
-    LOG(INFO) << "MissingHUD2 starting.";
+    LOG(INFO) << "========== MissingHUD2 starting. ==========";
 
     // Initialize BoI DLL Injector
     BoIInjector injector;
@@ -48,7 +48,6 @@ int main(int argc, char* argv[])
 
     int ret_code = app.exec();
     LOG(INFO) << "MissingHUD2 exiting with exit code " << ret_code << ".";
-
     return ret_code;
 }
 
