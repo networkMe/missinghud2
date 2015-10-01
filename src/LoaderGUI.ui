@@ -106,7 +106,7 @@
           </font>
          </property>
          <property name="text">
-          <string>&lt;a href=&quot;https://github.com/networkMe/missinghud2/releases&quot;&gt;v1.2.2&lt;/a&gt;</string>
+          <string>&lt;a href=&quot;https://github.com/networkMe/missinghud2/releases&quot;&gt;v1.2.3&lt;/a&gt;</string>
          </property>
          <property name="textFormat">
           <enum>Qt::RichText</enum>

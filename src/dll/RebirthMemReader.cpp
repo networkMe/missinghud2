@@ -99,13 +99,11 @@ float RebirthMemReader::GetDealWithDevilChance()
 
     int current_floor = *((int*)player_manager_inst);
     int labyrinth_flag = *((int*)((DWORD)player_manager_inst + PLAYER_MANAGER_CURSE_FLAGS)); // Need to take into account whether the floor is a labyrinth cursed floor
+    current_floor_ = current_floor;
     if (labyrinth_flag == LABYRINTH_CURSE)
-        ++current_floor;
-    if (current_floor == 1 || current_floor > 8)    // In-eligible for natural DWD on these floors (even with Goat Head)
+        ++current_floor_;
+    if (current_floor_ == 1 || current_floor_ > 8)    // In-eligible for natural DWD on these floors (even with Goat Head)
         return 0.0f;
-
-    if (current_floor > current_floor_)
-        current_floor_ = current_floor;
 
     DWORD player = GetPlayerMemAddr();
     if (*((DWORD*)(player + PASSIVE_ITEM_GOATHEAD)) != 0)       // Goat Head is a guaranteed DWD (100%)
@@ -164,7 +162,7 @@ float RebirthMemReader::GetDealWithDevilChance()
     DWORD devil_deal_prev_floor = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_DEVILDEAL_PREV_FLOOR));
     if (devil_deal_prev_floor > 0)
     {
-        int devil_deal_num_floors_ago = current_floor_ - (int)devil_deal_prev_floor;
+        int devil_deal_num_floors_ago = current_floor - (int)devil_deal_prev_floor; // Rebirth uses the non-labyrinthed current_floor value
         if (devil_deal_num_floors_ago < 2)
         {
             dwd_chance *= 0.25f; // Player has seen a Deal with Devil door less than 2 floors ago, reduce overall chance by 75%

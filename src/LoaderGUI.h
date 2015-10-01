@@ -31,7 +31,7 @@
 #include "ui_LoaderGUI.h"
 #include "BoIInjector.h"
 
-#define MHUD2_VERSION "v1.2.2"
+#define MHUD2_VERSION "v1.2.3"
 
 Q_DECLARE_METATYPE(std::string);
 
