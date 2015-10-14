@@ -25,13 +25,13 @@ BoIInjector::~BoIInjector()
 
 void BoIInjector::Start()
 {
-    LOG(INFO) << "Starting DLL injection monitor thread.";
+    LOG(INFO) << L"Starting DLL injection monitor thread.";
     inject_thread_ = std::thread(&BoIInjector::InjectorThread, this);
 }
 
 void BoIInjector::Stop()
 {
-    LOG(INFO) << "Stopping DLL injection monitor thread.";
+    LOG(INFO) << L"Stopping DLL injection monitor thread.";
     stop_injector_ = true;
     if (inject_thread_.joinable())
         inject_thread_.join();
@@ -45,27 +45,38 @@ void BoIInjector::InjectorThread()
         {
             if (IsBoIRunning())
             {
-                LOG(INFO) << "BoI process found, time to inject...";
+                LOG(INFO) << L"BoI process found, time to inject...";
 
+                // Set-up the DLL message queue (for IPC)
+                MHUD::MsgQueue::Remove();
+                dll_msg_queue_ = MHUD::MsgQueue::GetInstance();
+                std::thread handle_dll_msgs = std::thread(&BoIInjector::HandleDllMsgs, this);
+                handle_dll_msgs.detach();
+
+                // Inject DLL
                 isaac_process_ = BoIProcess::GetInstance();
                 isaac_process_->HookBoIProcess();
 
                 // Notify that we're injected
-                LOG(INFO) << "BoI process injected successfully.";
+                LOG(INFO) << L"BoI process injected successfully.";
                 emit InjectionStatus(InjectStatus(InjectStatus::Result::OK));
 
                 // Just sleep until Isaac closes or injector is quitting
                 while (isaac_process_->IsRunning() && !stop_injector_)
                 {
                     if (!isaac_process_->MHUD2Active())  // MHUD2 should not unload until we want it to (or Isaac closes)
-                        throw std::runtime_error("Error occured within injected DLL. Check MHUD2.log for details.");
+                        throw MHUD_Error(L"Error occurred within injected DLL. Check MHUD2.log for details.");
 
                     std::this_thread::sleep_for(std::chrono::milliseconds(500));
                 }
 
                 // Eject our DLLs (if they are still in the running BoI process)
-                LOG(INFO) << "BoI process closed or MissingHUD2 requested quit.";
+                LOG(INFO) << L"BoI process closed or MissingHUD2 requested quit.";
                 BoIProcess::Close();
+
+                // Clean-up DLL message queue
+                dll_msg_queue_ = nullptr;
+                MHUD::MsgQueue::Destroy();
             }
             else
             {
@@ -75,15 +86,20 @@ void BoIInjector::InjectorThread()
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }
     }
-    catch (std::runtime_error &e)
+    catch (MHUD_Error &e)
     {
-        LOG(ERROR) << "Injection thread error occured: " << e.what() << " (Error Code: " << GetLastError() << ")";
-        emit FatalError(e.what());
+        LOG(ERROR) << L"Injection thread error occured: " << e.get_error() << L" (Error Code: " << GetLastError() << L")";
+        emit FatalError(e.get_error());
+    }
+    catch (boost::interprocess::interprocess_exception &ie)
+    {
+        LOG(ERROR) << L"Interprocess communication error occured: " << ie.what() << L" (Error Code: " << GetLastError() << L")";
+        emit FatalError(L"Interprocess communication error occured. Check MHUD2.log for details.");
     }
     catch (...)
     {
-        LOG(ERROR) << "Unknown error occured. " << " (Error Code: " << GetLastError() << ")";
-        emit FatalError("Unknown error occured.");
+        LOG(ERROR) << L"Unknown error occured. " << L" (Error Code: " << GetLastError() << L")";
+        emit FatalError(L"Unknown error occured.");
     }
 }
 
@@ -95,12 +111,12 @@ bool BoIInjector::IsBoIRunning()
     proc_entry.dwSize = sizeof(proc_entry);
     HANDLE proc_snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (proc_snapshot == INVALID_HANDLE_VALUE)
-        throw std::runtime_error("[IsBoIRunning] Unable to obtain the system's process list to check if Isaac is running.");
+        throw MHUD_Error(L"[IsBoIRunning] Unable to obtain the system's process list to check if Isaac is running.");
     if (!Process32First(proc_snapshot, &proc_entry))
-        throw std::runtime_error("[IsBoIRunning] Unable to read the system's process list to check if Isaac is running.");
+        throw MHUD_Error(L"[IsBoIRunning] Unable to read the system's process list to check if Isaac is running.");
     do
     {
-        if (std::string(proc_entry.szExeFile) == BOI_PROCESS_NAME)
+        if (std::wstring(proc_entry.szExeFile) == BOI_PROCESS_NAME)
         {
             isaac_running = true;
             break;
@@ -109,4 +125,58 @@ bool BoIInjector::IsBoIRunning()
     CloseHandle(proc_snapshot);
 
     return isaac_running;
+}
+
+void BoIInjector::HandleDllMsgs()
+{
+    try
+    {
+        while (dll_msg_queue_ != nullptr)
+        {
+            MHUD::MHUDMsg mhud_msg;
+            while(MHUD::MsgQueue::GetInstance()->TryRecieve(&mhud_msg))
+            {
+                switch(mhud_msg.msg_type)
+                {
+                    case MHUD_IPC_LOG_MSG:
+                    {
+                        mhud2::Log log_msg;
+                        log_msg.ParseFromString(mhud_msg.msg_content);
+                        LogFromDLL(log_msg);
+                    } break;
+                }
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+        }
+    }
+    catch(boost::interprocess::interprocess_exception &ie)
+    {
+        LOG(ERROR) << L"Boost Interprocess error occurred: " << ie.what();
+        emit FatalError(L"Boost Interprocess error occurred in DLL interprocess message thread.");
+    }
+    catch (...)
+    {
+        LOG(ERROR) << L"Unknown error occurred in DLL interprocess message thread.";
+        emit FatalError(L"Unknown error occurred in DLL interprocess message thread.");
+    }
+}
+
+void BoIInjector::LogFromDLL(mhud2::Log log_msg)
+{
+    if (log_msg.has_log_type() && log_msg.has_log_msg())
+    {
+        switch (log_msg.log_type())
+        {
+            case log_msg.LOG_INFO:
+            {
+                LOG(INFO) << "[MHUD2 DLL] " << log_msg.log_msg();
+            } break;
+
+            case log_msg.LOG_ERROR:
+            {
+                LOG(ERROR) << "[MHUD2 DLL] " << log_msg.log_msg();
+            } break;
+        }
+    }
 }

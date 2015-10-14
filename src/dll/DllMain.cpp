@@ -15,18 +15,14 @@
 #include <thread>
 
 #include <windows.h>
-#include <shlwapi.h>
-#include <easylogging++.h>
 
 #include "IATHook.h"
 #include "RebirthMemReader.h"
 #include "GDISwapBuffers.h"
 #include "ResourceLoader.h"
+#include "src/MHUD_MsgQueue.h"
 
 #define DLL_PUBLIC __declspec(dllexport)
-
-INITIALIZE_EASYLOGGINGPP
-bool InitializeEasyLogging();
 
 static HMODULE dll_handle = 0;
 
@@ -40,33 +36,12 @@ int APIENTRY DllMain(HMODULE h_dll, DWORD reason, LPVOID reserved)
     return TRUE;
 }
 
-bool InitializeEasyLogging()
-{
-    char dll_path[MAX_PATH] = { '\0' };
-    if (GetModuleFileName(dll_handle, dll_path, MAX_PATH) == 0)
-        return false;
-    PathRemoveFileSpec(dll_path);
-
-    std::string mhud2_dir = std::string(dll_path);
-    std::string conf_file = mhud2_dir + "/MHUD2.log.conf";
-    std::string log_file = mhud2_dir + "/MHUD2.log";
-
-    el::Configurations logger_conf(conf_file);
-    logger_conf.setGlobally(el::ConfigurationType::Format, "[%datetime{%Y-%M-%d %h:%m:%s %F}] "
-            "[TID: %thread] [%level] [HookDLL] %msg");
-    logger_conf.setGlobally(el::ConfigurationType::Filename, log_file);
-    logger_conf.setGlobally(el::ConfigurationType::ToFile, "true");
-
-    el::Loggers::setDefaultConfigurations(logger_conf, true);
-}
-
 extern "C" DLL_PUBLIC void MHUD2_Start()
 {
-    InitializeEasyLogging();
-    LOG(INFO) << "MissingHUD2 injected and starting.";
-
     try
     {
+        QUEUE_LOG(mhud2::Log::LOG_INFO, "MissingHUD2 injected and starting.");
+
         // Initialize any static objects we require that don't involve an OpenGL context
         ResourceLoader::Initialize(dll_handle);
         RebirthMemReader::GetMemoryReader();
@@ -80,22 +55,26 @@ extern "C" DLL_PUBLIC void MHUD2_Start()
     }
     catch (std::runtime_error &e)
     {
-        LOG(ERROR) << "Error occured during MHUD2 initilization: " << e.what();
+        QUEUE_LOG(mhud2::Log::LOG_ERROR, "Error occured during MHUD2 initilization: " + std::string(e.what()));
+        FreeLibraryAndExitThread(dll_handle, EXIT_FAILURE);
+    }
+    catch (boost::interprocess::interprocess_exception &ie)
+    {
         FreeLibraryAndExitThread(dll_handle, EXIT_FAILURE);
     }
 }
 
 extern "C" DLL_PUBLIC void MHUD2_Stop()
 {
-    LOG(INFO) << "MissingHUD2 exiting.";
+    QUEUE_LOG(mhud2::Log::LOG_INFO, "MissingHUD2 exiting.");
 
     // Tell our SwapBuffers detour to cleanup it's OpenGL stuff
     GDISwapBuffers *gdi_swapbuffers = GDISwapBuffers::GetInstance();
     gdi_swapbuffers->WaitForCleanup();
 
-    // Disable IAT hooks
     try
     {
+        // Disable IAT hooks
         IATHook::DisableIATHook("SwapBuffers");
 
         // Wait for the hooks to be no longer active
@@ -106,10 +85,11 @@ extern "C" DLL_PUBLIC void MHUD2_Stop()
         GDISwapBuffers::Destroy();
         ResourceLoader::Destroy();
         RebirthMemReader::Destroy();
+        MHUD::MsgQueue::Destroy();
     }
     catch (std::runtime_error &e)
     {
-        LOG(ERROR) << "Error occured during MHUD2 cleanup: " << e.what();
+        QUEUE_LOG(mhud2::Log::LOG_ERROR, "Error occured during MHUD2 cleanup: " + std::string(e.what()));
         FreeLibraryAndExitThread(dll_handle, EXIT_FAILURE);
     }
 
@@ -117,7 +97,7 @@ extern "C" DLL_PUBLIC void MHUD2_Stop()
     FreeLibraryAndExitThread(dll_handle, EXIT_SUCCESS);
 }
 
-bool frame_failed = false;
+static bool frame_failed = false;
 BOOL WINAPI gdiSwapBuffersDetour(HDC hdc)
 {
     GDISwapBuffers *gdi_swapbuffers = GDISwapBuffers::GetInstance();
@@ -135,7 +115,7 @@ BOOL WINAPI gdiSwapBuffersDetour(HDC hdc)
             frame_failed = true;
 
             // We use the raw Win32 API to create the stop thread as using the C++ variant (std::thread) results
-            // in Rebirth crashing
+            // in Rebirth crashing (this isn't our programs thread)
             CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&MHUD2_Stop, NULL, 0, NULL);
         }
     }

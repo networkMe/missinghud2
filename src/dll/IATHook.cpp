@@ -89,8 +89,11 @@ void IATHook::EnableIATHook(std::string proc_name, LPVOID *orig_proc_addr)
     if (!VirtualProtect(thunk_mem_info.BaseAddress, thunk_mem_info.RegionSize, PAGE_READWRITE, &thunk_mem_info.Protect))
         throw std::runtime_error("Error occurred setting the IAT to have read/write privileges.");
 
+    std::stringstream ss;
+    ss << "Enabling IAT hook for " << proc_name << " in module " << iathook_info.target_module_name;
+    QUEUE_LOG(mhud2::Log::LOG_INFO, ss.str());
+
     // Replace the IAT function pointer
-    LOG(INFO) << "Enabling IAT hook for " << proc_name << " in module " << iathook_info.target_module_name;
     *(orig_proc_addr) = iathook_info.orig_proc_addr;
     iathook_info.thunk->u1.Function = (DWORD)iathook_info.detour_proc;
 
@@ -113,8 +116,11 @@ void IATHook::DisableIATHook(std::string proc_name)
     if (!VirtualProtect(thunk_mem_info.BaseAddress, thunk_mem_info.RegionSize, PAGE_READWRITE, &thunk_mem_info.Protect))
         throw std::runtime_error("Error occurred setting the IAT to have read/write privileges.");
 
+    std::stringstream ss;
+    ss << "Disabling IAT hook for " << proc_name << " in module " << iathook_info.target_module_name;
+    QUEUE_LOG(mhud2::Log::LOG_INFO, ss.str());
+
     // Replace the IAT function pointer with the old function
-    LOG(INFO) << "Disabling IAT hook for " << proc_name << " in module " << iathook_info.target_module_name;
     iathook_info.thunk->u1.Function = (DWORD)iathook_info.orig_proc_addr;
 
     // Restore the import memory page permissions

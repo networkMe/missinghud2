@@ -68,13 +68,15 @@ SpriteSheet::SpriteSheet(RESID spritesheet_res_id, RESID spritesheet_tex_map, SP
 {
     LoadTexture(spritesheet_res_id, invert_img_y);
     MapSpriteTextures(spritesheet_tex_map, sprite_size);
-    GenerateDynamicVertex(4);
+
+    // Generate the buffers we use to draw the 2D sprites
+    glGenBuffers(1, &array_buffer_);
+    glGenBuffers(1, &ele_array_buffer_);
 }
 
 SpriteSheet::~SpriteSheet()
 {
     glDeleteTextures(1, &spritesheet_texture_);
-    glDeleteVertexArrays(1, & vertex_array_);
     glDeleteBuffers(1, &array_buffer_);
     glDeleteBuffers(1, &ele_array_buffer_);
 }
@@ -127,37 +129,6 @@ void SpriteSheet::MapSpriteTextures(RESID spritesheet_tex_map, SPRITESIZE sprite
     }
 }
 
-void SpriteSheet::GenerateDynamicVertex(int alloced_vertexes)
-{
-    // We know the element buffer before drawing (it's not relative to viewport changes)
-    GLuint gl_ele_buff[] = {
-        1, 0, 3,
-        1, 3, 2
-    };
-
-    // Generate the dynamic vertex array for the 2D spritesheet
-    glGenVertexArrays(1, &vertex_array_);
-    glGenBuffers(1, &array_buffer_);
-    glGenBuffers(1, &ele_array_buffer_);
-
-    glBindVertexArray(vertex_array_);
-        glBindBuffer(GL_ARRAY_BUFFER, array_buffer_);
-        glBufferData(GL_ARRAY_BUFFER, alloced_vertexes * 4 * sizeof(GLfloat), NULL, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ele_array_buffer_);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(gl_ele_buff), gl_ele_buff, GL_STATIC_DRAW);
-
-        // Position attribute
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
-        glEnableVertexAttribArray(0);
-
-        // Texture coord attribute
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
-        glEnableVertexAttribArray(1);
-    glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
 void SpriteSheet::DrawSprite(glm::vec2 position, glm::vec2 size, std::string sprite_name, glm::vec3 sprite_color)
 {
     // Get the GLSL shaders required
@@ -170,12 +141,16 @@ void SpriteSheet::DrawSprite(glm::vec2 position, glm::vec2 size, std::string spr
     int sprite_index = sprite_index_[sprite_name];
     float tex_top_left_x = sprite_tex_width_ * sprite_index;
     float tex_top_left_y = sprite_tex_height_;
-    GLfloat gl_vert_buff_[] = {
+    GLfloat gl_vert_buff[] = {
         // Position                                                       // Texture
         (GLfloat)position.x + size.x,    (GLfloat)position.y,             tex_top_left_x + sprite_tex_width_,    tex_top_left_y,                         // Top-right
         (GLfloat)position.x + size.x,    (GLfloat)position.y - size.y,    tex_top_left_x + sprite_tex_width_,    tex_top_left_y - sprite_tex_height_,    // Bottom-right
         (GLfloat)position.x,             (GLfloat)position.y - size.y,    tex_top_left_x,    tex_top_left_y - sprite_tex_height_,                        // Bottom-left
         (GLfloat)position.x,             (GLfloat)position.y,             tex_top_left_x,    tex_top_left_y                                              // Top-left
+    };
+    GLuint gl_ele_buff[] = {
+        1, 0, 3,
+        1, 3, 2
     };
 
     // Actually draw the sprite
@@ -183,14 +158,29 @@ void SpriteSheet::DrawSprite(glm::vec2 position, glm::vec2 size, std::string spr
     glUniform3f(glGetUniformLocation(spritesheet_shader->GetProgID(), "texture_color"), sprite_color.r, sprite_color.g, sprite_color.b);
     glBindTexture(GL_TEXTURE_2D, spritesheet_texture_);
 
+    // Generate the vertex buffers for the sprite
     glBindBuffer(GL_ARRAY_BUFFER, array_buffer_);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(gl_vert_buff_), gl_vert_buff_);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(gl_vert_buff), gl_vert_buff, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ele_array_buffer_);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(gl_ele_buff), gl_ele_buff, GL_STATIC_DRAW);
 
-    glBindVertexArray(vertex_array_);
+    // Position attribute
+    GLint pos_loc = glGetAttribLocation(spritesheet_shader->GetProgID(), "position");
+    glEnableVertexAttribArray(pos_loc);
+    glVertexAttribPointer(pos_loc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)0);
+
+    // Texture coord attribute
+    GLint tex_loc = glGetAttribLocation(spritesheet_shader->GetProgID(), "texture_coord");
+    glVertexAttribPointer(tex_loc, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(tex_loc);
+
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
 
+    // Clean-up OpenGL bindings
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindTexture(GL_TEXTURE_2D, 0);
     spritesheet_shader->CloseProgram();
 }

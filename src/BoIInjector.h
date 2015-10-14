@@ -16,11 +16,13 @@
 #define BOISTATSREBORN_BOIINJECTOR_H
 
 #include <thread>
+#include <cstdlib>
 
 #include <Windows.h>
 #include <easylogging++.h>
 
 #include "BoIProcess.h"
+#include "MHUD_MsgQueue.h"
 
 struct InjectStatus
 {
@@ -56,17 +58,21 @@ public:
 
 signals:
     void InjectionStatus(InjectStatus s);
-    void FatalError(std::string err_msg);
+    void FatalError(std::wstring err_msg);
 
 private:
     void InjectorThread();
 
     bool IsBoIRunning();
+    void HandleDllMsgs();
+
+    void LogFromDLL(mhud2::Log log_msg);
 
 private:
     bool stop_injector_ = false;
     std::thread inject_thread_;
     BoIProcess *isaac_process_ = nullptr;
+    MHUD::MsgQueue *dll_msg_queue_ = nullptr;
 };
 
 

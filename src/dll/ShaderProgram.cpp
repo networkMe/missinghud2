@@ -63,7 +63,7 @@ bool ShaderProgram::CompileProgram(int vertex_res, int fragment_res)
     if (!compile_result)
     {
         glGetShaderInfoLog(vertex_shader, 512, NULL, info_log);
-        OutputDebugString(info_log);
+        OutputDebugStringA(info_log);
         return false;
     }
 
@@ -79,7 +79,7 @@ bool ShaderProgram::CompileProgram(int vertex_res, int fragment_res)
     if (!compile_result)
     {
         glGetShaderInfoLog(fragment_shader, 512, NULL, info_log);
-        OutputDebugString(info_log);
+        OutputDebugStringA(info_log);
         return false;
     }
 
@@ -95,7 +95,7 @@ bool ShaderProgram::CompileProgram(int vertex_res, int fragment_res)
     if (!link_result)
     {
         glGetProgramInfoLog(compiled_prog_id_, 512, NULL, info_log);
-        OutputDebugString(info_log);
+        OutputDebugStringA(info_log);
         return false;
     }
 

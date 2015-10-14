@@ -1,0 +1,15 @@
+package mhud2;
+
+option optimize_for = LITE_RUNTIME;
+
+message Log
+{
+    enum LogType
+    {
+        LOG_INFO = 0;
+        LOG_ERROR = 1;
+    }
+
+    optional LogType log_type = 1;
+    optional string log_msg = 2;
+}

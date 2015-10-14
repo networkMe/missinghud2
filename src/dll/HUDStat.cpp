@@ -19,7 +19,7 @@ HUDStat::HUDStat(MHUDSTAT mhud_stat)
     hud_stat_ = mhud_stat;
 
     Color green(0, 200, 0);
-    Color red(200, 0, 0);
+    Color red(220, 0, 0);
     switch (mhud_stat)
     {
         case MHUDSTAT::kStat_FireRate:

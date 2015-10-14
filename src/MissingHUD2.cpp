@@ -23,7 +23,7 @@ INITIALIZE_EASYLOGGINGPP
 void InitializeEasyLogging(int argc, char* argv[]);
 
 #ifdef QT_STATIC
-    Q_IMPORT_PLUGIN (QWindowsIntegrationPlugin);
+    Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
 #endif
 
 int main(int argc, char* argv[])
@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 
     // Initialize file logger
     InitializeEasyLogging(argc, argv);
-    LOG(INFO) << "========== MissingHUD2 starting. ==========";
+    LOG(INFO) << L"========== Missing HUD 2 " << MHUD2_VERSION << L" ==========";
 
     // Initialize BoI DLL Injector
     BoIInjector injector;
@@ -47,20 +47,24 @@ int main(int argc, char* argv[])
     injector.Start();
 
     int ret_code = app.exec();
-    LOG(INFO) << "MissingHUD2 exiting with exit code " << ret_code << ".";
+
+    LOG(INFO) << L"Missing HUD 2 exiting with exit code " << ret_code << L".";
     return ret_code;
 }
 
 void InitializeEasyLogging(int argc, char* argv[])
 {
-    std::string app_dir = QCoreApplication::applicationDirPath().toStdString();
-    std::string log_file = app_dir + "/MHUD2.log";
-    std::string conf_file = app_dir + "/MHUD2.log.conf";
-
     START_EASYLOGGINGPP(argc, argv);
+
+    // EasyLogging++ does not support unicode file paths, we workaround this by changing the working directory
+    std::wstring app_dir = QCoreApplication::applicationDirPath().toStdWString();
+    SetCurrentDirectory(app_dir.c_str());
+
+    // Initialize the file logging module
+    std::string log_file = "MHUD2.log";
+    std::string conf_file = "MHUD2.log.conf";
     el::Configurations logger_conf(conf_file);
     logger_conf.setGlobally(el::ConfigurationType::Filename, log_file);
     logger_conf.setGlobally(el::ConfigurationType::ToFile, "true");
-
     el::Loggers::setDefaultConfigurations(logger_conf, true);
 }

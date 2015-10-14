@@ -13,18 +13,28 @@ else()
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/bin/Release")
 endif()
 
+# Global C++ flags and defines
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 add_definitions(-DWINVER=0x0601 -D_WIN32_WINNT=0x0601)  # Target Windows 7
+add_definitions(-DUNICODE -D_UNICODE)  # Target Unicode
 
 # Strip targets if Release build
 if (${CMAKE_BUILD_TYPE} MATCHES Release)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s")
 endif()
 
+# Generate Interprocess Protobuf's
+find_package(Protobuf REQUIRED)
+set(PROTO_SRC_FILES
+    src/proto/mhud2.proto
+)
+PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${PROTO_SRC_FILES})
+
 # Build the Hook DLL
 set(CMAKE_SHARED_MODULE_PREFIX "")
 set(DLL_SOURCE_FILES
     src/dll/DllMain.cpp
+    src/MHUD_MsgQueue.h src/MHUD_MsgQueue.cpp
     src/dll/IATHook.h src/dll/IATHook.cpp
     src/dll/GLStructs.h src/dll/GLStructs.cpp
     src/dll/GDISwapBuffers.h src/dll/GDISwapBuffers.cpp
@@ -40,16 +50,17 @@ set(DLL_SOURCE_FILES
     src/dll/ResourceLoader.h src/dll/ResourceLoader.cpp
     res/DllResources.h res/DllResources.rc
 )
-add_library(MissingHUD2Hook MODULE ${DLL_SOURCE_FILES})
+add_library(MissingHUD2Hook MODULE ${DLL_SOURCE_FILES} ${PROTO_SRCS} ${PROTO_HDRS})
 
 # We link all dep's statically so we don't have to inject them along with the DLL
 set_target_properties(MissingHUD2Hook PROPERTIES LINK_FLAGS "-static")
-target_compile_definitions(MissingHUD2Hook PRIVATE "-DGLEW_STATIC -DELPP_THREAD_SAFE -DELPP_NO_DEFAULT_LOG_FILE")
+target_compile_definitions(MissingHUD2Hook PRIVATE "-DGLEW_STATIC -DBOOST_DATE_TIME_NO_LIB")
 target_link_libraries(MissingHUD2Hook
     glew32
     soil2
     OpenGL32
     shlwapi
+    protobuf-lite
 )
 
 # Qt5 settings
@@ -82,15 +93,18 @@ set(SOURCE_FILES
     src/LoaderGUI.h src/LoaderGUI.cpp src/LoaderGUI.ui
     src/BoIInjector.h src/BoIInjector.cpp
     src/BoIProcess.h src/BoIProcess.cpp
+    src/MHUD_Error.h
+    src/MHUD_MsgQueue.h src/MHUD_MsgQueue.cpp
 
     res/MissingHUD2.qrc
     res/WinResources.h res/WinResource.rc
 )
-add_executable(MissingHUD2 WIN32 ${SOURCE_FILES})
-target_compile_definitions(MissingHUD2 PRIVATE "-DELPP_THREAD_SAFE -DELPP_NO_DEFAULT_LOG_FILE")
+add_executable(MissingHUD2 WIN32 ${SOURCE_FILES} ${PROTO_SRCS} ${PROTO_HDRS})
+target_compile_definitions(MissingHUD2 PRIVATE "-DBOOST_DATE_TIME_NO_LIB -DELPP_UNICODE -DELPP_THREAD_SAFE -DELPP_NO_DEFAULT_LOG_FILE")
 target_link_libraries(MissingHUD2
     Qt5::Core Qt5::Widgets Qt5::Network Qt5::WinExtras Qt5PlatformSupport
     shlwapi
+    protobuf-lite
 )
 
 # Set Qt5 to static as well as GCC C++ libs if Release buildtype

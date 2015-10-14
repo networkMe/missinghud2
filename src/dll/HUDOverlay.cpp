@@ -56,7 +56,7 @@ void HUDOverlay::DrawHUD(HDC hdc)
     // Draw the HUD stats info bar
     glm::vec2 base_hud_stats_menu;
     base_hud_stats_menu.x = -0.98f;
-    base_hud_stats_menu.y = 0.1f;
+    base_hud_stats_menu.y = 0.2f;
 
     HUDStat speed_stat(MHUDSTAT::kStat_Speed);
     speed_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kSpeed),

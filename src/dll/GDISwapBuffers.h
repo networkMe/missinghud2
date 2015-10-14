@@ -25,7 +25,8 @@
 
 #include "GLStructs.h"
 #include "HUDOverlay.h"
-#include <res/DllResources.h>
+#include "src/MHUD_MsgQueue.h"
+#include "res/DllResources.h"
 
 typedef BOOL WINAPI (*GDISWAPBUFFERSFUNC)(HDC);
 
@@ -54,6 +55,8 @@ public:
 private:
     GDISwapBuffers();
     ~GDISwapBuffers();
+
+    bool InitializeGLEW();
 
 private:
     static GDISwapBuffers *instance_;

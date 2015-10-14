@@ -29,7 +29,9 @@
 #include <psapi.h>
 #include <shlwapi.h>
 
-#define BOI_PROCESS_NAME    "isaac-ng.exe"
+#include "MHUD_Error.h"
+
+#define BOI_PROCESS_NAME    L"isaac-ng.exe"
 
 class BoIProcess
 {
@@ -46,9 +48,11 @@ private:
     ~BoIProcess();
 
     bool EnableDebugPrivilege();
-    HMODULE LoadLibraryIntoBoI(LPVOID remote_mem, std::string library_path);
-    FARPROC GetRemoteProcAddress(HMODULE rem_dll_module, std::string rem_module_name, std::string proc_name);
+    HMODULE LoadLibraryIntoBoI(LPVOID remote_mem, std::wstring library_path);
+    FARPROC GetRemoteProcAddress(HMODULE rem_dll_module, std::wstring rem_module_name, std::string proc_name);
     bool UnhookBoIProcess();
+
+    void WaitForBoIProcessInit();
 
 private:
     static BoIProcess* instance_;

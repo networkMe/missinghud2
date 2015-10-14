@@ -17,10 +17,13 @@
 
 #include <string>
 #include <map>
+#include <algorithm>
+#include <sstream>
 
-#include <easylogging++.h>
 #include <windows.h>
 #include <winnt.h>
+
+#include "src/MHUD_MsgQueue.h"
 
 struct IATHookInfo
 {

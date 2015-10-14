@@ -65,7 +65,7 @@ LPVOID GDISwapBuffers::GetGDI32HookAddr()
 {
     if (orig_swap_buffers_addr_ == NULL)
     {
-        HMODULE gdi32 = GetModuleHandle("gdi32.dll");
+        HMODULE gdi32 = GetModuleHandle(L"gdi32.dll");
         orig_swap_buffers_addr_ = (LPVOID)GetProcAddress(gdi32, "SwapBuffers");
     }
 
@@ -77,22 +77,8 @@ bool GDISwapBuffers::CustomizeFrame(HDC hdc)
     // Initialize the GLEW OpenGL library on our first frame render (it requires a valid OpenGL context)
     if (!glew_ready_)
     {
-        glewExperimental = GL_TRUE;
-        GLenum glew_result = glewInit();
-        if (glew_result != GLEW_OK)
-        {
-            LOG(ERROR) << "glewInit failed with error: " << glew_result << " (" << glewGetErrorString(glew_result) << ")";
+        if (!InitializeGLEW())
             return false;
-        }
-
-        // MHUD2 requires minimum OpenGL 3.3 support (it was released early 2010)
-        if (!GLEW_VERSION_3_3)
-        {
-            LOG(ERROR) << "MHUD2 requires OpenGL 3.3 graphics driver support.";
-            return false;
-        }
-
-        glew_ready_ = true;
     }
 
     // Disable DEPTH_TEST so we can draw over the top of Rebirth
@@ -101,13 +87,61 @@ bool GDISwapBuffers::CustomizeFrame(HDC hdc)
     if (orig_depthtest_val)
         glDisable(GL_DEPTH_TEST);
 
+    // Enable BLEND so that we can use partially transparent PNG's
+    GLboolean orig_blend_val;
+    glGetBooleanv(GL_BLEND, &orig_blend_val);
+    if (!orig_blend_val)
+        glEnable (GL_BLEND);
+
+    // Set our OpenGL BlendFunc for alpha transparency
+    GLint orig_blend_src;
+    glGetIntegerv(GL_BLEND_SRC, &orig_blend_src);
+    GLint orig_blend_dst;
+    glGetIntegerv(GL_BLEND_DST, &orig_blend_dst);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // Draw the HUD
     HUDOverlay *hud = HUDOverlay::GetInstance();
     hud->DrawHUD(hdc);
 
+    // Restore whatever the original BlendFunc was
+    glBlendFunc(orig_blend_src, orig_blend_dst);
+
+    // Disable BLEND if it was disabled
+    if (!orig_blend_val)
+        glDisable(GL_BLEND);
+
     // Re-enable DEPTH_TEST if it was enabled
     if (orig_depthtest_val)
         glEnable(GL_DEPTH_TEST);
+
+    return true;
+}
+
+bool GDISwapBuffers::InitializeGLEW()
+{
+    if (!glew_ready_)
+    {
+        glewExperimental = GL_TRUE;
+        GLenum glew_result = glewInit();
+        if (glew_result != GLEW_OK)
+        {
+            std::stringstream ss;
+            ss << "glewInit failed with error: " << glew_result << " (" << glewGetErrorString(glew_result) << ")";
+            QUEUE_LOG(mhud2::Log::LOG_ERROR, ss.str());
+
+            return false;
+        }
+
+        // MHUD2 requires minimum OpenGL 2.0 support (it was released mid 2004)
+        if (!GLEW_VERSION_2_0)
+        {
+            QUEUE_LOG(mhud2::Log::LOG_ERROR, "MHUD2 requires OpenGL 2.0 graphics driver support.");
+            return false;
+        }
+
+        glew_ready_ = true;
+    }
 
     return true;
 }

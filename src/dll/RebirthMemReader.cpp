@@ -293,15 +293,25 @@ void RebirthMemReader::GetRebirthModuleInfo()
 
     module_address_ = (DWORD)rebirth_mem.AllocationBase;
     module_size_ = pe_header->OptionalHeader.SizeOfImage;
-    LOG(INFO) << "Rebirth module address: 0x" << std::hex << module_address_;
-    LOG(INFO) << "Rebirth module size: " << std::hex << module_size_;
+
+    std::stringstream ss;
+    ss << "Rebirth module address: 0x" << std::hex << module_address_;
+    QUEUE_LOG(mhud2::Log::LOG_INFO, ss.str());
+    ss.str(""); ss.clear();
+
+    ss << "Rebirth module size: " << std::hex << module_size_;
+    QUEUE_LOG(mhud2::Log::LOG_INFO, ss.str());
+    ss.str(""); ss.clear();
 
     // Find the static address pointer of the Rebirth PlayerManager instance
     std::vector<unsigned char> player_manager_inst_address_p_bytes_ = SearchMemForVal(PlayerManagerInstAddr);
     if (player_manager_inst_address_p_bytes_.size() < 4)
         throw std::runtime_error("Couldn't find the PlayerManager static instance address");
     player_manager_inst_p_addr_ = *((DWORD*)player_manager_inst_address_p_bytes_.data());
-    LOG(INFO) << "PlayerManager Instance **: " << std::hex << player_manager_inst_p_addr_;
+
+    ss << "PlayerManager Instance **: " << std::hex << player_manager_inst_p_addr_;
+    QUEUE_LOG(mhud2::Log::LOG_INFO, ss.str());
+    ss.str(""); ss.clear();
 
     // Find the offset of the Players list relative to the PlayerManager instance
     *((DWORD*)(PlayerManagerPlayerListOffset.signature + 2)) = player_manager_inst_p_addr_;
@@ -309,7 +319,10 @@ void RebirthMemReader::GetRebirthModuleInfo()
     if (player_manager_player_list_offset_bytes_.size() < 2)
         throw std::runtime_error("Couldn't find the PlayerManager PlayerList offset");
     player_manager_player_list_offset_ = *((WORD*)player_manager_player_list_offset_bytes_.data());
-    LOG(INFO) << "PlayerManager PlayerList offset: " << std::hex << player_manager_player_list_offset_;
+
+    ss << "PlayerManager PlayerList offset: " << std::hex << player_manager_player_list_offset_;
+    QUEUE_LOG(mhud2::Log::LOG_INFO, ss.str());
+    ss.str(""); ss.clear();
 }
 
 std::vector<unsigned char> RebirthMemReader::SearchMemForVal(MemSig mem_sig)

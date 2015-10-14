@@ -25,15 +25,12 @@
 #include <thread>
 #include <chrono>
 
-#include <rapidjson/rapidjson.h>
-#include <rapidjson/document.h>
-
 #include "ui_LoaderGUI.h"
 #include "BoIInjector.h"
 
-#define MHUD2_VERSION "v1.2.3"
+#define MHUD2_VERSION L"v1.2.4"
 
-Q_DECLARE_METATYPE(std::string);
+Q_DECLARE_METATYPE(std::wstring);
 
 class LoaderGUI : public QMainWindow
 {
@@ -50,7 +47,7 @@ protected:
 private slots:
     void CheckForUpdates(bool checked = false);
     void OnInjectionStatusChange(InjectStatus s);
-    void OnFatalError(std::string err_msg);
+    void OnFatalError(std::wstring err_msg);
     void OnUpdateResponse(QNetworkReply* response);
 
 private:
