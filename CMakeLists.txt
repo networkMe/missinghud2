@@ -16,14 +16,14 @@ endif()
 # Global C++ flags and defines
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 add_definitions(-DWINVER=0x0601 -D_WIN32_WINNT=0x0601)  # Target Windows 7
-add_definitions(-DUNICODE -D_UNICODE)  # Target Unicode
+add_definitions(-DBOOST_DATE_TIME_NO_LIB -DBOOST_INTERPROCESS_BOOTSTAMP_IS_LASTBOOTUPTIME)  # Boost options
 
 # Strip targets if Release build
 if (${CMAKE_BUILD_TYPE} MATCHES Release)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s")
 endif()
 
-# Generate Interprocess Protobuf's
+# Generate boost::interprocess protobuf's
 find_package(Protobuf REQUIRED)
 set(PROTO_SRC_FILES
     src/proto/mhud2.proto
@@ -54,7 +54,7 @@ add_library(MissingHUD2Hook MODULE ${DLL_SOURCE_FILES} ${PROTO_SRCS} ${PROTO_HDR
 
 # We link all dep's statically so we don't have to inject them along with the DLL
 set_target_properties(MissingHUD2Hook PROPERTIES LINK_FLAGS "-static")
-target_compile_definitions(MissingHUD2Hook PRIVATE "-DGLEW_STATIC -DBOOST_DATE_TIME_NO_LIB")
+target_compile_definitions(MissingHUD2Hook PRIVATE "-DGLEW_STATIC")
 target_link_libraries(MissingHUD2Hook
     glew32
     soil2
@@ -93,14 +93,14 @@ set(SOURCE_FILES
     src/LoaderGUI.h src/LoaderGUI.cpp src/LoaderGUI.ui
     src/BoIInjector.h src/BoIInjector.cpp
     src/BoIProcess.h src/BoIProcess.cpp
-    src/MHUD_Error.h
     src/MHUD_MsgQueue.h src/MHUD_MsgQueue.cpp
+    src/mhud2_version.h
 
     res/MissingHUD2.qrc
     res/WinResources.h res/WinResource.rc
 )
 add_executable(MissingHUD2 WIN32 ${SOURCE_FILES} ${PROTO_SRCS} ${PROTO_HDRS})
-target_compile_definitions(MissingHUD2 PRIVATE "-DBOOST_DATE_TIME_NO_LIB -DELPP_UNICODE -DELPP_THREAD_SAFE -DELPP_NO_DEFAULT_LOG_FILE")
+target_compile_definitions(MissingHUD2 PRIVATE "-DELPP_THREAD_SAFE -DELPP_NO_DEFAULT_LOG_FILE")
 target_link_libraries(MissingHUD2
     Qt5::Core Qt5::Widgets Qt5::Network Qt5::WinExtras Qt5PlatformSupport
     shlwapi

@@ -58,7 +58,7 @@ public:
 
 signals:
     void InjectionStatus(InjectStatus s);
-    void FatalError(std::wstring err_msg);
+    void FatalError(std::string err_msg);
 
 private:
     void InjectorThread();

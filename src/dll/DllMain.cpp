@@ -48,7 +48,8 @@ extern "C" DLL_PUBLIC void MHUD2_Start()
 
         // Hook the OpenGL SwapBuffers function via IAT redirection
         GDISwapBuffers *gdi_swapbuffers = GDISwapBuffers::GetInstance();
-        IATHook::InitIATHook(GetModuleHandle(ISAAC_MODULE_NAME), "gdi32.dll", "SwapBuffers", (LPVOID)&gdiSwapBuffersDetour);
+        IATHook::InitIATHook(GetModuleHandleW(WCHAR_ISAAC_MODULE_NAME), "gdi32.dll", "SwapBuffers",
+                             (LPVOID)&gdiSwapBuffersDetour);
 
         // Enable the IAT hooks
         IATHook::EnableIATHook("SwapBuffers", (LPVOID*)gdi_swapbuffers->GetEndpointAddr());

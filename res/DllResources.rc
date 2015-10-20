@@ -8,3 +8,42 @@ MHUD2_ISAAC_FONT_CHARMAP RCDATA "files/MHUD2FontCharmap.texmap"
 
 OPENGL_HUD_SPRITE_VERTEX_SHADER RCDATA "shaders/hud_icon_vert.glsl"
 OPENGL_HUD_SPRITE_FRAG_SHADER RCDATA "shaders/hud_icon_frag.glsl"
+
+#define PRODUCT_VER         1,2,4,0
+#define PRODUCT_VER_STR     "1.2.4"
+
+#ifdef NDEBUG
+    #define VER_DEBUG 0
+#else
+    #define VER_DEBUG VS_FF_DEBUG
+#endif
+
+VS_VERSION_INFO     VERSIONINFO
+FILEVERSION         PRODUCT_VER
+PRODUCTVERSION      PRODUCT_VER
+FILEFLAGSMASK       VS_FFI_FILEFLAGSMASK
+FILEFLAGS           VER_DEBUG
+FILEOS              VOS_NT_WINDOWS32
+FILETYPE            VFT_APP
+FILESUBTYPE         VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName",        "Trevor Meehl"
+            VALUE "FileDescription",    "Binding of Isaac: Rebirth Statistics HUD Hook DLL"
+            VALUE "FileVersion",        PRODUCT_VER_STR
+            VALUE "InternalName",       "MissingHUD2Hook"
+            VALUE "OriginalFilename",   "MissingHUD2Hook.dll"
+            VALUE "ProductName",        "Missing HUD 2 Hook DLL"
+            VALUE "ProductVersion",     PRODUCT_VER_STR
+            VALUE "LegalCopyright",     "Apache 2.0 License"
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

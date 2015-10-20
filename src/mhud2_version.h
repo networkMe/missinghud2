@@ -12,27 +12,13 @@
 // See the License for the specific language governing permissions and
 //         limitations under the License.
 
-#ifndef MISSINGHUD2_MHUD_ERROR_H
-#define MISSINGHUD2_MHUD_ERROR_H
+#ifndef MISSINGHUD2_VERSION_H
+#define MISSINGHUD2_VERSION_H
 
-#include <stdexcept>
+#define MHUD2_VERSION               "v1.2.4"
 
-class MHUD_Error : public std::exception
-{
-public:
-    inline MHUD_Error(std::wstring error_msg)
-    {
-        err_msg_ = error_msg;
-    };
+#define MHUD2_MAJOR_VERSION         1
+#define MHUD2_MINOR_VERSION         2
+#define MHUD2_REVISION_VERSION      4
 
-    inline std::wstring get_error()
-    {
-        return err_msg_;
-    };
-
-private:
-    std::wstring err_msg_;
-};
-
-
-#endif //MISSINGHUD2_MHUD_ERROR_H
+#endif //MISSINGHUD2_VERSION_H

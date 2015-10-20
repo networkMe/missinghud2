@@ -65,7 +65,7 @@ LPVOID GDISwapBuffers::GetGDI32HookAddr()
 {
     if (orig_swap_buffers_addr_ == NULL)
     {
-        HMODULE gdi32 = GetModuleHandle(L"gdi32.dll");
+        HMODULE gdi32 = GetModuleHandleW(L"gdi32.dll");
         orig_swap_buffers_addr_ = (LPVOID)GetProcAddress(gdi32, "SwapBuffers");
     }
 

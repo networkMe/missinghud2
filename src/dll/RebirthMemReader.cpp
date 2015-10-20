@@ -281,7 +281,7 @@ DWORD RebirthMemReader::GetCurrentRoom()
 void RebirthMemReader::GetRebirthModuleInfo()
 {
     // Get the base address of the Rebirth module
-    DWORD module_handle = (DWORD)GetModuleHandle(ISAAC_MODULE_NAME);
+    DWORD module_handle = (DWORD)GetModuleHandleW(WCHAR_ISAAC_MODULE_NAME);
     MEMORY_BASIC_INFORMATION rebirth_mem = { 0 };
     if (VirtualQuery((LPVOID)module_handle, &rebirth_mem, sizeof(rebirth_mem)) == 0)
         throw std::runtime_error("Unable to get memory information for Isaac.");

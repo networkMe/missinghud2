@@ -25,7 +25,7 @@
 #include "RebirthMemSignatures.h"
 #include "src/MHUD_MsgQueue.h"
 
-#define ISAAC_MODULE_NAME L"isaac-ng.exe"
+#define WCHAR_ISAAC_MODULE_NAME   L"isaac-ng.exe"
 
 #define ITEM_ACTIVE_SLOT 0xCC8
 #define ACTIVE_ITEM_BOOKOFREVELATIONS 0x4E

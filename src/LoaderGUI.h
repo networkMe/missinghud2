@@ -27,10 +27,9 @@
 
 #include "ui_LoaderGUI.h"
 #include "BoIInjector.h"
+#include "mhud2_version.h"
 
-#define MHUD2_VERSION L"v1.2.4"
-
-Q_DECLARE_METATYPE(std::wstring);
+Q_DECLARE_METATYPE(std::string);
 
 class LoaderGUI : public QMainWindow
 {
@@ -47,7 +46,7 @@ protected:
 private slots:
     void CheckForUpdates(bool checked = false);
     void OnInjectionStatusChange(InjectStatus s);
-    void OnFatalError(std::wstring err_msg);
+    void OnFatalError(std::string err_msg);
     void OnUpdateResponse(QNetworkReply* response);
 
 private:

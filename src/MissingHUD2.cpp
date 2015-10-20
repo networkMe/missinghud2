@@ -18,6 +18,7 @@
 
 #include "LoaderGUI.h"
 #include "BoIInjector.h"
+#include "mhud2_version.h"
 
 INITIALIZE_EASYLOGGINGPP
 void InitializeEasyLogging(int argc, char* argv[]);
@@ -33,7 +34,7 @@ int main(int argc, char* argv[])
 
     // Initialize file logger
     InitializeEasyLogging(argc, argv);
-    LOG(INFO) << L"========== Missing HUD 2 " << MHUD2_VERSION << L" ==========";
+    LOG(INFO) << "========== Missing HUD 2 " << MHUD2_VERSION << " ==========";
 
     // Initialize BoI DLL Injector
     BoIInjector injector;
@@ -47,8 +48,7 @@ int main(int argc, char* argv[])
     injector.Start();
 
     int ret_code = app.exec();
-
-    LOG(INFO) << L"Missing HUD 2 exiting with exit code " << ret_code << L".";
+    LOG(INFO) << "Missing HUD 2 exiting with exit code " << ret_code << ".";
     return ret_code;
 }
 
@@ -58,7 +58,7 @@ void InitializeEasyLogging(int argc, char* argv[])
 
     // EasyLogging++ does not support unicode file paths, we workaround this by changing the working directory
     std::wstring app_dir = QCoreApplication::applicationDirPath().toStdWString();
-    SetCurrentDirectory(app_dir.c_str());
+    SetCurrentDirectoryW(app_dir.c_str());
 
     // Initialize the file logging module
     std::string log_file = "MHUD2.log";
