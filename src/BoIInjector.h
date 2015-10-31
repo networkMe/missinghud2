@@ -60,6 +60,9 @@ signals:
     void InjectionStatus(InjectStatus s);
     void FatalError(std::string err_msg);
 
+private slots:
+    void SendNewPrefs(MHUD::Prefs new_prefs);
+
 private:
     void InjectorThread();
 
@@ -72,6 +75,8 @@ private:
     bool stop_injector_ = false;
     std::thread inject_thread_;
     BoIProcess *isaac_process_ = nullptr;
+
+    MHUD::MsgQueue *app_msg_queue_ = nullptr;
     MHUD::MsgQueue *dll_msg_queue_ = nullptr;
 };
 

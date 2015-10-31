@@ -13,3 +13,10 @@ message Log
     optional LogType log_type = 1;
     optional string log_msg = 2;
 }
+
+message Preferences
+{
+    optional bool show_tears_fired = 1;
+    optional bool show_shot_height = 2;
+    optional int32 stat_precision = 3;
+}

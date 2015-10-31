@@ -15,15 +15,20 @@
 #ifndef MISSINGHUD2_MHUD_MSGQUEUE_H
 #define MISSINGHUD2_MHUD_MSGQUEUE_H
 
+#include <map>
+
 #include <boost/interprocess/ipc/message_queue.hpp>
 
 #include "mhud2.pb.h"
+#include "MHUD_Options.h"
 
-#define MAX_MSG_SIZE_BYTES 1024
-#define MSG_QUEUE_NAME "mhud2_msg_queue"
+#define MAX_MSG_SIZE_BYTES          1024
+#define MSG_QUEUE_APP_TO_DLL        "mhud2_app_to_dll"
+#define MSG_QUEUE_DLL_TO_APP        "mhud2_dll_to_app"
 
-#define QUEUE_LOG(LEVEL, MSG) MHUD::MsgQueue::GetInstance()->SendLog(LEVEL, MSG);
-#define MHUD_IPC_LOG_MSG 0x1
+#define QUEUE_LOG(LEVEL, MSG) MHUD::MsgQueue::GetInstance(MSG_QUEUE_DLL_TO_APP)->SendLog(LEVEL, MSG);
+#define MHUD_IPC_LOG_MSG    0x1
+#define MHUD_IPC_PREFS      0x2
 
 typedef unsigned char byte;
 
@@ -40,20 +45,21 @@ struct MHUDMsg
 class MsgQueue
 {
 public:
-    static MsgQueue* GetInstance();
-    static void Destroy();
-    static void Remove();
+    static MHUD::MsgQueue* GetInstance(std::string queue_name);
+    static void Destroy(std::string queue_name);
+    static void Remove(std::string queue_name);
 
     bool TryRecieve(MHUDMsg* mhud_msg);
 
     void SendLog(mhud2::Log::LogType log_type, std::string message);
+    void SendPrefs(MHUD::Prefs mhud_prefs);
 
 private:
-    MsgQueue();
+    MsgQueue(std::string queue_name);
     ~MsgQueue();
 
 private:
-    static MsgQueue* instance_;
+    static std::map<std::string,MHUD::MsgQueue*> instances_;
 
     boost::interprocess::message_queue *mhud2_msgs_ = nullptr;
 };

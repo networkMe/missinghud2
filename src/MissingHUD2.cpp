@@ -39,9 +39,13 @@ int main(int argc, char* argv[])
     // Initialize BoI DLL Injector
     BoIInjector injector;
 
+    // Load preferences
+    MHUD::Prefs mhud_prefs = MHUD::Options::ReadCfgFile(CFG_FILENAME);
+
     // Show GUI
     LoaderGUI gui;
     gui.ConnectSlots(injector);
+    gui.UpdatePrefs(mhud_prefs);
     gui.show();
 
     // Start the DLL monitoring thread

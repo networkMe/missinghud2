@@ -20,7 +20,7 @@
 #include "RebirthMemReader.h"
 #include "GDISwapBuffers.h"
 #include "ResourceLoader.h"
-#include "src/MHUD_MsgQueue.h"
+#include "DLLPreferences.h"
 
 #define DLL_PUBLIC __declspec(dllexport)
 
@@ -43,6 +43,7 @@ extern "C" DLL_PUBLIC void MHUD2_Start()
         QUEUE_LOG(mhud2::Log::LOG_INFO, "MissingHUD2 injected and starting.");
 
         // Initialize any static objects we require that don't involve an OpenGL context
+        DLLPreferences::GetInstance();
         ResourceLoader::Initialize(dll_handle);
         RebirthMemReader::GetMemoryReader();
 
@@ -83,10 +84,11 @@ extern "C" DLL_PUBLIC void MHUD2_Stop()
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         // Clean-up global static objects
+        DLLPreferences::Destroy();
         GDISwapBuffers::Destroy();
         ResourceLoader::Destroy();
         RebirthMemReader::Destroy();
-        MHUD::MsgQueue::Destroy();
+        MHUD::MsgQueue::Destroy(MSG_QUEUE_DLL_TO_APP);
     }
     catch (std::runtime_error &e)
     {

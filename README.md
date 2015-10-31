@@ -1,12 +1,13 @@
 ## Overview
-Missing HUD 2 is an Open-GL powered informational overlay for the Binding of Isaac: Rebirth.
+Missing HUD 2 is an OpenGL powered informational overlay for the Binding of Isaac: Rebirth + Afterbirth.
 
-The developers of Rebirth (Edmund McMillen, Nicalis) decided that one of their design decisions for the game would be to hide raw player statistics from the player as to not to overwhelm them.
-This project gives the player the choice to see their raw statistics if they choose to.
+The developers of the Binding of Isaac (Edmund McMillen, Nicalis) decided that one of their design decisions for the game would be to hide raw player statistics from the player as to not to overwhelm them. This project gives the player the choice to see their raw statistics if they choose to.
 
-It is a transparent mod that **DOES NOT** disable achievements nor alter your Isaac game files in any way. As a result, it can be enabled and disabled at any point, during any run, with no lasting consequences. One can run other mods side-by-side with Missing HUD 2 with no issues.
+It is a transparent mod that **DOES NOT** disable achievements nor alter your Isaac game files in any way. **Note:** It can be used in Afterbirth daily runs with no repercussions.
 
-Unlike other mods, it uses your live character statistics during a run. This translates to Missing HUD 2 remaining 100% accurate even after picking up items like [Experimental Treatment](http://bindingofisaacrebirth.gamepedia.com/Experimental_Treatment) and [Libra](http://bindingofisaacrebirth.gamepedia.com/Libra).
+It can be enabled and disabled at any point, during any run, with no lasting consequences. One can run other mods side-by-side with Missing HUD 2 with no issues.
+
+Unlike other statistic based mods, it uses your live character statistics during a run. This translates to Missing HUD 2 remaining 100% accurate even after picking up items like [Experimental Treatment](http://bindingofisaacrebirth.gamepedia.com/Experimental_Treatment) and [Libra](http://bindingofisaacrebirth.gamepedia.com/Libra).
 
 ![Image of MissingHUD2](https://raw.githubusercontent.com/networkMe/missinghud2/master/doc/isaac-mhud2-example-124.jpg)
 
@@ -27,11 +28,14 @@ https://github.com/networkMe/missinghud2/releases/latest
 ## Current features
 * Works in fullscreen and windowed mode (as it's a direct OpenGL implementation)
 * Shows how your raw statistics change as you pick up items and use pills, real-time
+* Allows you to choose at what precision you see the raw statistics (default is 1 decimal place)
 * Statistics HUD on the left of the Rebirth viewport shows:
+  * Total tears fired in run (optional)
   * Speed
   * Range
   * Tear firerate (Tear delay, lower is faster)
   * Shot speed
+  * Shot height (optional)
   * Damage
   * Luck
   * Deal with the Devil % chance

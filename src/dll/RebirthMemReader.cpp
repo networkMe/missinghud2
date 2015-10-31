@@ -105,26 +105,41 @@ float RebirthMemReader::GetDealWithDevilChance()
     if (current_floor_ == 1 || current_floor_ > 8)    // In-eligible for natural DWD on these floors (even with Goat Head)
         return 0.0f;
 
-    DWORD player = GetPlayerMemAddr();
-    if (*((DWORD*)(player + PASSIVE_ITEM_GOATHEAD)) != 0)       // Goat Head is a guaranteed DWD (100%)
+    // If these 2 conditions are met, you get a guaranteed DWD. I have not a clue what sets these though!
+    DWORD dwd_floor_flag_unknown_1 = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_DEVILDEAL_UNKNOWN_1));
+    DWORD dwd_floor_flag_unknown_2 = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_DEVILDEAL_UNKNOWN_2));
+    if (dwd_floor_flag_unknown_1 == 0x2 && dwd_floor_flag_unknown_2 < 0xB)
         return 1.0f;
 
+    DWORD player = GetPlayerMemAddr();
     float dwd_chance = 0.01f; // Default 1% chance
 
-    if (*((DWORD*)(player + PASSIVE_ITEM_PENTAGRAM)) != 0)      // Pentagram adds 20% chance
-        dwd_chance += 0.20f;
-
-    if (*((DWORD*)(player + PASSIVE_ITEM_PENTAGRAM)) > 1)       // Having more than one pentagram adds another 10% chance
+    if (PlayerHasItem(PASSIVE_ITEM_PENTAGRAM))      // Pentagram adds 10% chance
         dwd_chance += 0.10f;
 
-    if (*((DWORD*)(player + PASSIVE_ITEM_BLACKCANDLE)) != 0)    // Black Candle adds 30% chance
-        dwd_chance += 0.30f;
+    if (PlayerHasItem(PASSIVE_ITEM_BLACKCANDLE))    // Black Candle adds 15% chance
+        dwd_chance += 0.15f;
+
+    DWORD afterbirth_items_flag = *((DWORD*)(player + UNKNOWN_AFTERBIRTH_ITEMS));
+
+    // No idea what Afterbirth item this is, but it can affect whether
+    // the Afterbirth item's 5% increase is introduced
+    if (PlayerHasItem(0x188))
+    {
+        // This item relies on RNG as to whether it contributes to the devil deal chance or not??
+        DWORD rng_func_result = AfterBirthItemRNGFunc();
+        if (rng_func_result == 0x33)
+            ++afterbirth_items_flag;
+    }
+
+    if (afterbirth_items_flag > 1)   // There's a 3 Afterbirth items that use this flag
+        dwd_chance += 0.05f;         // They add 5% if it's above 1 but I have no idea what sets this flag
 
     DWORD player_active_item = *((DWORD*)(player + ITEM_ACTIVE_SLOT));
-    if (player_active_item == ACTIVE_ITEM_BOOKOFREVELATIONS)    // Holding Book of Revelations adds 35% chance
-        dwd_chance += 0.35f;
-    else if (player_active_item == ACTIVE_ITEM_BOOKOFBELIAL)    // Holding Book of Belial adds 2500% chance
-        dwd_chance += 25.00f;
+    if (player_active_item == ACTIVE_ITEM_BOOKOFREVELATIONS)    // Holding Book of Revelations adds 17.5% chance
+        dwd_chance += 0.175f;
+    else if (player_active_item == ACTIVE_ITEM_BOOKOFBELIAL)    // Holding Book of Belial adds 12.5% chance
+        dwd_chance += 0.125f;
 
     BYTE floor_flag = *((BYTE*)(player_manager_inst + PLAYER_MANAGER_FLOOR_FLAGS));
     if (floor_flag & 1)                                         // Killing a normal beggar adds 35% chance
@@ -163,7 +178,7 @@ float RebirthMemReader::GetDealWithDevilChance()
     if (devil_deal_prev_floor > 0)
     {
         int devil_deal_num_floors_ago = current_floor - (int)devil_deal_prev_floor; // Rebirth uses the non-labyrinthed current_floor value
-        if (devil_deal_num_floors_ago < 2)
+        if (devil_deal_num_floors_ago <= 1)
         {
             dwd_chance *= 0.25f; // Player has seen a Deal with Devil door less than 2 floors ago, reduce overall chance by 75%
         }
@@ -172,6 +187,9 @@ float RebirthMemReader::GetDealWithDevilChance()
             dwd_chance *= 0.5f; // Player has seen a Deal with Devil door 2 floors ago, reduce overall chance by 50%
         }
     }
+
+    if (PlayerHasItem(PASSIVE_ITEM_GOATHEAD))       // Goat Head adds 666% chance (nice!)
+        dwd_chance += 66.6;
 
     if (dwd_chance > 1.00f)
         dwd_chance = 1.00f;
@@ -274,7 +292,8 @@ DWORD RebirthMemReader::GetCurrentRoom()
         return 0;
 
     DWORD room_code = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_ROOM_CODE));
-    DWORD room_num = *((DWORD*)(player_manager_inst + (room_code * 4) + 0x5AC4));
+    DWORD room_num = *((DWORD*)(player_manager_inst + (room_code * 4) + PLAYER_MANAGER_ROOM_CODE_FORMULA_OFFSET));
+
     return room_num;
 }
 
@@ -323,6 +342,36 @@ void RebirthMemReader::GetRebirthModuleInfo()
     ss << "PlayerManager PlayerList offset: " << std::hex << player_manager_player_list_offset_;
     QUEUE_LOG(mhud2::Log::LOG_INFO, ss.str());
     ss.str(""); ss.clear();
+
+    // Find the map address for the RNG fucntion
+    std::vector<unsigned char> rng_map_address = SearchMemForVal(AfterbirthRNGMap);
+    if (rng_map_address.size() < 4)
+        throw std::runtime_error("Couldn't find the RNG map address!");
+    rng_map_addr_ = *((DWORD*)rng_map_address.data());
+
+    ss << "RNG Map offset: " << std::hex << rng_map_addr_;
+    QUEUE_LOG(mhud2::Log::LOG_INFO, ss.str());
+    ss.str(""); ss.clear();
+
+    // Find the RNG addresses for the RNG function
+    std::vector<unsigned char> rng_value_addresses = SearchMemForVal(AfterbirthRNGVals);
+    if (rng_value_addresses.size() < 12)
+        throw std::runtime_error("Couldn't find the RNG value addresses!");
+    rng_value_1_addr_ = *((DWORD*)rng_value_addresses.data());
+    rng_value_2_addr_ = *((DWORD*)(rng_value_addresses.data() + 0x4));
+    rng_value_3_addr_ = *((DWORD*)(rng_value_addresses.data() + 0x8));
+
+    ss << "RNG Value 1 offset: " << std::hex << rng_value_1_addr_;
+    QUEUE_LOG(mhud2::Log::LOG_INFO, ss.str());
+    ss.str(""); ss.clear();
+
+    ss << "RNG Value 2 offset: " << std::hex << rng_value_2_addr_;
+    QUEUE_LOG(mhud2::Log::LOG_INFO, ss.str());
+    ss.str(""); ss.clear();
+
+    ss << "RNG Value 3 offset: " << std::hex << rng_value_3_addr_;
+    QUEUE_LOG(mhud2::Log::LOG_INFO, ss.str());
+    ss.str(""); ss.clear();
 }
 
 std::vector<unsigned char> RebirthMemReader::SearchMemForVal(MemSig mem_sig)
@@ -359,4 +408,57 @@ std::vector<unsigned char> RebirthMemReader::SearchMemForVal(MemSig mem_sig)
     }
 
     return val_bytes;
+}
+
+bool RebirthMemReader::PlayerHasItem(int item_id)
+{
+    DWORD player = GetPlayerMemAddr();
+    DWORD item_flag = *((DWORD*)(player + (item_id * 4) + PLAYER_HAS_ITEM_FORM_OFFSET));
+
+    return (item_flag != 0);
+}
+
+bool RebirthMemReader::PlayingGreed()
+{
+    DWORD player_manager_inst = GetPlayerManagerMemAddr();
+    if (player_manager_inst == 0)
+        return false;
+
+    int game_mode_flag = *((int*)((DWORD)player_manager_inst + PLAYER_MANAGER_GAME_MODE_FLAG));
+    return (game_mode_flag == GREED_GAME_MODE);
+}
+
+DWORD RebirthMemReader::AfterBirthItemRNGFunc()
+{
+    if (!PlayerHasItem(0x188))
+        return 0;
+
+    DWORD player_manager_inst = GetPlayerManagerMemAddr();
+    if (player_manager_inst == 0)
+        return 0;
+
+    DWORD game_seed = *((DWORD*)(player_manager_inst + 0xB848));
+    if (game_seed == 0)
+        return 0;
+
+    DWORD current_floor = *((DWORD*)(player_manager_inst));
+    DWORD rng_addr = ((DWORD)(player_manager_inst + 0xB844));
+    DWORD rng_seed = *((DWORD*)(rng_addr + (current_floor*4) + 0x18));
+    DWORD rng_seed_1 = *(DWORD*)rng_value_1_addr_;
+    DWORD rng_seed_2 = *(DWORD*)rng_value_2_addr_;
+    DWORD rng_seed_3 = *(DWORD*)rng_value_3_addr_;
+
+    // RNG algorithm
+    DWORD rng_1 = (rng_seed >> rng_seed_2) ^ rng_seed;
+    DWORD rng_2 = rng_1 ^ (rng_1 << rng_seed_3);
+    DWORD rng_3 = rng_2 ^ (rng_2 >> rng_seed_1);
+    uint64_t rng_multiplied = rng_3 * (uint64_t)0xAAAAAAAB;
+    DWORD rng_4 = (rng_multiplied >> 32) >> 3;
+    DWORD rng_map_base = rng_4 + (rng_4 * 2);
+    rng_map_base += rng_map_base;
+    rng_map_base += rng_map_base;
+    DWORD map_modifier = rng_3 - rng_map_base;
+
+    DWORD rng_result = *((DWORD*)((map_modifier * 4) + rng_map_addr_));
+    return rng_result;
 }

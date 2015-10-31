@@ -16,36 +16,37 @@
 
 using namespace boost::interprocess;
 
-MHUD::MsgQueue* MHUD::MsgQueue::instance_ = nullptr;
+std::map<std::string,MHUD::MsgQueue*> MHUD::MsgQueue::instances_;
 
-MHUD::MsgQueue *MHUD::MsgQueue::GetInstance()
+MHUD::MsgQueue *MHUD::MsgQueue::GetInstance(std::string queue_name)
 {
-    if (instance_ == nullptr)
-        instance_ = new MsgQueue();
+    if (instances_.count(queue_name) == 0)
+        instances_[queue_name] = new MsgQueue(queue_name);
 
-    return instance_;
+    return instances_[queue_name];
 }
 
-void MHUD::MsgQueue::Destroy()
+void MHUD::MsgQueue::Destroy(std::string queue_name)
 {
-    if (instance_ != nullptr)
-        delete instance_;
-
-    instance_ = nullptr;
+    if (instances_.count(queue_name) != 0)
+    {
+        delete instances_[queue_name];
+        instances_.erase(queue_name);
+    }
 }
 
-void MHUD::MsgQueue::Remove()
+void MHUD::MsgQueue::Remove(std::string queue_name)
 {
-    if (instance_ != nullptr)
-        Destroy();
+    if (instances_.count(queue_name) != 0)
+        Destroy(queue_name);
 
-    message_queue::remove(MSG_QUEUE_NAME);
+    message_queue::remove(queue_name.c_str());
 }
 
-MHUD::MsgQueue::MsgQueue()
+MHUD::MsgQueue::MsgQueue(std::string queue_name)
 {
     // Set-up the Dll message queue (for IPC)
-    mhud2_msgs_ = new message_queue(open_or_create, MSG_QUEUE_NAME, 50, sizeof(byte) * (MAX_MSG_SIZE_BYTES + 1));
+    mhud2_msgs_ = new message_queue(open_or_create, queue_name.c_str(), 50, sizeof(byte) * (MAX_MSG_SIZE_BYTES + 1));
 }
 
 MHUD::MsgQueue::~MsgQueue()
@@ -75,6 +76,13 @@ bool MHUD::MsgQueue::TryRecieve(MHUD::MHUDMsg *mhud_msg)
             mhud_msg->msg_content = msg_buffer;
         } break;
 
+        case MHUD_IPC_PREFS:
+        {
+            mhud_msg->msg_type = MHUD_IPC_PREFS;
+            mhud_msg->msg_size = msg_size;
+            mhud_msg->msg_content = msg_buffer;
+        } break;
+
         default:
         {
             mhud_msg->msg_type = 255;
@@ -96,6 +104,21 @@ void MHUD::MsgQueue::SendLog(mhud2::Log::LogType log_type, std::string message)
     std::string msg_buffer(MAX_MSG_SIZE_BYTES, 0);
     log_proto.SerializeToString(&msg_buffer);
     msg_buffer.insert(0, 1, MHUD_IPC_LOG_MSG);
+
+    mhud2_msgs_->send(&msg_buffer[0], MAX_MSG_SIZE_BYTES + 1, msg_prio);
+}
+
+void MHUD::MsgQueue::SendPrefs(MHUD::Prefs mhud_prefs)
+{
+    mhud2::Preferences prefs_proto;
+    prefs_proto.set_show_tears_fired(mhud_prefs.show_tears_fired);
+    prefs_proto.set_show_shot_height(mhud_prefs.show_shot_height);
+    prefs_proto.set_stat_precision(mhud_prefs.stat_precision);
+
+    unsigned int msg_prio = 0;
+    std::string msg_buffer(MAX_MSG_SIZE_BYTES, 0);
+    prefs_proto.SerializeToString(&msg_buffer);
+    msg_buffer.insert(0, 1, MHUD_IPC_PREFS);
 
     mhud2_msgs_->send(&msg_buffer[0], MAX_MSG_SIZE_BYTES + 1, msg_prio);
 }

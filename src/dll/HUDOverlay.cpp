@@ -55,8 +55,16 @@ void HUDOverlay::DrawHUD(HDC hdc)
 
     // Draw the HUD stats info bar
     glm::vec2 base_hud_stats_menu;
-    base_hud_stats_menu.x = -0.98f;
-    base_hud_stats_menu.y = 0.2f;
+    base_hud_stats_menu.x = -1.0f;
+    base_hud_stats_menu.y = 0.25f;
+
+    if (DLLPreferences::GetInstance()->GetPrefs().show_tears_fired)
+    {
+        HUDStat tears_fired_stat(MHUDSTAT::kStat_TearsFired);
+        tears_fired_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStati(RebirthPlayerStat::kTearsFired),
+                              NO_RECENT_STAT_CHANGES_I);
+        base_hud_stats_menu.y -= 0.1f;
+    }
 
     HUDStat speed_stat(MHUDSTAT::kStat_Speed);
     speed_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kSpeed),
@@ -77,6 +85,14 @@ void HUDOverlay::DrawHUD(HDC hdc)
     shotspeed_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kShotSpeed),
                         mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kShotSpeed));
 
+    if (DLLPreferences::GetInstance()->GetPrefs().show_shot_height)
+    {
+        base_hud_stats_menu.y -= 0.1f;
+        HUDStat shot_height_stat(MHUDSTAT::kStat_ShotHeight);
+        shot_height_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kShotHeight),
+                              mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kShotHeight));
+    }
+
     base_hud_stats_menu.y -= 0.1f;
     HUDStat damage_stat(MHUDSTAT::kStat_Damage);
     damage_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDamage),
@@ -87,8 +103,13 @@ void HUDOverlay::DrawHUD(HDC hdc)
     luck_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kLuck),
                    mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kLuck));
 
-    base_hud_stats_menu.y -= 0.1f;
-    HUDStat dwd_stat(MHUDSTAT::kStat_DealWithDevil);
-    dwd_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDealWithDevil),
-                  mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kDealWithDevil), true);
+
+    // Deal with Devil chance is irrelevant in Greed mode
+    if (!mem_reader->PlayingGreed())
+    {
+        base_hud_stats_menu.y -= 0.1f;
+        HUDStat dwd_stat(MHUDSTAT::kStat_DealWithDevil);
+        dwd_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDealWithDevil),
+                      mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kDealWithDevil), SHOW_AS_PERCENTAGE);
+    }
 }

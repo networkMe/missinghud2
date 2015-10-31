@@ -48,6 +48,7 @@ set(DLL_SOURCE_FILES
     src/dll/TextRenderer.h src/dll/TextRenderer.cpp
     src/dll/ShaderProgram.h src/dll/ShaderProgram.cpp
     src/dll/ResourceLoader.h src/dll/ResourceLoader.cpp
+    src/dll/DLLPreferences.h src/dll/DLLPreferences.cpp
     res/DllResources.h res/DllResources.rc
 )
 add_library(MissingHUD2Hook MODULE ${DLL_SOURCE_FILES} ${PROTO_SRCS} ${PROTO_HDRS})
@@ -94,6 +95,7 @@ set(SOURCE_FILES
     src/BoIInjector.h src/BoIInjector.cpp
     src/BoIProcess.h src/BoIProcess.cpp
     src/MHUD_MsgQueue.h src/MHUD_MsgQueue.cpp
+    src/MHUD_Options.h src/MHUD_Options.cpp
     src/mhud2_version.h
 
     res/MissingHUD2.qrc

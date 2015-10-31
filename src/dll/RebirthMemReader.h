@@ -27,34 +27,43 @@
 
 #define WCHAR_ISAAC_MODULE_NAME   L"isaac-ng.exe"
 
-#define ITEM_ACTIVE_SLOT 0xCC8
+#define ITEM_ACTIVE_SLOT 0x1CD4
 #define ACTIVE_ITEM_BOOKOFREVELATIONS 0x4E
 #define ACTIVE_ITEM_BOOKOFBELIAL 0x22
 
-#define PASSIVE_ITEM_PENTAGRAM 0xE38
-#define PASSIVE_ITEM_GOATHEAD 0x10C8
-#define PASSIVE_ITEM_BLACKCANDLE 0x117C
+#define PLAYER_HAS_ITEM_FORM_OFFSET 0x1D84
+#define PASSIVE_ITEM_PENTAGRAM 0x33
+#define PASSIVE_ITEM_BLACKCANDLE 0x104
+#define PASSIVE_ITEM_GOATHEAD 0xD7
+#define UNKNOWN_AFTERBIRTH_ITEMS 0x1E50
 
-#define PLAYER_MANAGER_FLOOR_FLAGS 0x5DC0
-#define PLAYER_MANAGER_FLOOR_BOSS_FIGHT 0x5D98
-#define PLAYER_MANAGER_ROOM_CODE 0x5D9C
-#define PLAYER_MANAGER_BOSS_ROOM_CODE 0x5DA4
-#define PLAYER_MANAGER_DEVILDEAL_PREV_FLOOR 0x10D7E8
+#define PLAYER_MANAGER_FLOOR_FLAGS 0x708C
+#define PLAYER_MANAGER_FLOOR_BOSS_FIGHT 0x7014
+#define PLAYER_MANAGER_ROOM_CODE 0x7018
+#define PLAYER_MANAGER_ROOM_CODE_FORMULA_OFFSET 0x6D40
+#define PLAYER_MANAGER_BOSS_ROOM_CODE 0x7020
+#define PLAYER_MANAGER_DEVILDEAL_PREV_FLOOR 0x174DD4
+#define PLAYER_MANAGER_DEVILDEAL_UNKNOWN_1 0x175020
+#define PLAYER_MANAGER_DEVILDEAL_UNKNOWN_2 0x703C
 
 #define BOSS_FIGHT_TOOK_RED_DMG 0xE8C
 
-#define PLAYER_MANAGER_CURSE_FLAGS 0x8
+#define PLAYER_MANAGER_CURSE_FLAGS 0xC
+#define PLAYER_MANAGER_GAME_MODE_FLAG 0x4
+#define GREED_GAME_MODE 0x3
 #define LABYRINTH_CURSE 0x2
 
 // These values are the offsets of the specific statistic from the core Player memory address
 enum RebirthPlayerStat
 {
-    kSpeed = 0xCB4,
-    kRange = 0xBF4,
-    kTearsDelay = 0xBE0,
-    kShotSpeed = 0xBE4,
-    kDamage = 0xBF0,
-    kLuck = 0xCB8,
+    kSpeed = 0x1CBC,
+    kRange = 0x1BF4,
+    kTearsDelay = 0x1BE0,
+    kShotSpeed = 0x1BE4,
+    kShotHeight = 0x1BF8,
+    kDamage = 0x1BF0,
+    kLuck = 0x1CC0,
+    kTearsFired = 0x1BEC,
     kDealWithDevil = 0xFFFFFFFF  // An advanced function is required for this statistic
 };
 
@@ -75,6 +84,8 @@ public:
     static void Destroy();
 
     bool IsRunActive();
+    bool PlayingGreed();
+
     float GetPlayerStatf(RebirthPlayerStat player_stat);
     int GetPlayerStati(RebirthPlayerStat player_stat);
 
@@ -97,6 +108,9 @@ private:
     float GetDealWithDevilChance();
     DWORD GetCurrentRoom();
 
+    bool PlayerHasItem(int item_id);
+    DWORD AfterBirthItemRNGFunc();
+
     void SaveStat(RebirthPlayerStat player_stat, float stat_val);
 
 private:
@@ -107,6 +121,11 @@ private:
 
     DWORD player_manager_inst_p_addr_ = 0;
     DWORD player_manager_player_list_offset_ = 0;
+
+    DWORD rng_map_addr_ = 0;
+    DWORD rng_value_1_addr_ = 0;
+    DWORD rng_value_2_addr_ = 0;
+    DWORD rng_value_3_addr_ = 0;
 
     int current_floor_ = 0;
     bool boss_fight_took_dmg_ = false;

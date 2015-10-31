@@ -48,10 +48,15 @@ void BoIInjector::InjectorThread()
                 LOG(INFO) << "BoI process found, time to inject...";
 
                 // Set-up the DLL message queue (for IPC)
-                MHUD::MsgQueue::Remove();
-                dll_msg_queue_ = MHUD::MsgQueue::GetInstance();
+                MHUD::MsgQueue::Remove(MSG_QUEUE_APP_TO_DLL);
+                MHUD::MsgQueue::Remove(MSG_QUEUE_DLL_TO_APP);
+                app_msg_queue_ = MHUD::MsgQueue::GetInstance(MSG_QUEUE_APP_TO_DLL);
+                dll_msg_queue_ = MHUD::MsgQueue::GetInstance(MSG_QUEUE_DLL_TO_APP);
                 std::thread handle_dll_msgs = std::thread(&BoIInjector::HandleDllMsgs, this);
                 handle_dll_msgs.detach();
+
+                // Send the preferences message ready for the DLL
+                SendNewPrefs(MHUD::Options::ReadCfgFile(CFG_FILENAME));
 
                 // Inject DLL
                 isaac_process_ = BoIProcess::GetInstance();
@@ -75,8 +80,10 @@ void BoIInjector::InjectorThread()
                 BoIProcess::Close();
 
                 // Clean-up DLL message queue
+                app_msg_queue_ = nullptr;
                 dll_msg_queue_ = nullptr;
-                MHUD::MsgQueue::Remove();
+                MHUD::MsgQueue::Remove(MSG_QUEUE_APP_TO_DLL);
+                MHUD::MsgQueue::Remove(MSG_QUEUE_DLL_TO_APP);
             }
             else
             {
@@ -100,6 +107,14 @@ void BoIInjector::InjectorThread()
     {
         LOG(ERROR) << "Unknown error occured. " << " (Error Code: " << GetLastError() << ")";
         emit FatalError("Unknown error occured.");
+    }
+}
+
+void BoIInjector::SendNewPrefs(MHUD::Prefs new_prefs)
+{
+    if (app_msg_queue_)
+    {
+        app_msg_queue_->SendPrefs(new_prefs);
     }
 }
 
@@ -134,7 +149,7 @@ void BoIInjector::HandleDllMsgs()
         while (dll_msg_queue_ != nullptr)
         {
             MHUD::MHUDMsg mhud_msg;
-            while(MHUD::MsgQueue::GetInstance()->TryRecieve(&mhud_msg))
+            while(MHUD::MsgQueue::GetInstance(MSG_QUEUE_DLL_TO_APP)->TryRecieve(&mhud_msg))
             {
                 switch(mhud_msg.msg_type)
                 {
