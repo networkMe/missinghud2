@@ -70,15 +70,15 @@ const static MemSig PlayerManagerPlayerListOffset = {
 // 8B 3D F0 42 B9 00  | mov edi,dword ptr ds:[B942F0]          |  <== We want these 3 addresses
 // 8B 1D F4 42 B9 00  | mov ebx,dword ptr ds:[B942F4]          |  <==
 static unsigned char AfterbirthRNGValsSig[] =
-        {
-                0x8B, 0x74, 0xBE, 0x18,
-                0x8B, 0x15, 0x00, 0x00, 0x00, 0x00,
-                0x8B, 0x3D, 0x00, 0x00, 0x00, 0x00,
-                0x8B, 0x1D, 0x00, 0x00, 0x00, 0x00
-        };
+{
+    0x8B, 0x00, 0xBE, 0x18,
+    0x8B, 0x15, 0x00, 0x00, 0x00, 0x00,
+    0x8B, 0x3D, 0x00, 0x00, 0x00, 0x00,
+    0x8B, 0x1D, 0x00, 0x00, 0x00, 0x00
+};
 const static MemSig AfterbirthRNGVals = {
-        AfterbirthRNGValsSig,
-        "bbbbbbvvvvbbvvvvbbvvvv"
+    AfterbirthRNGValsSig,
+    "b?bbb?vvvvb?vvvvb?vvvv"
 };
 
 
@@ -89,15 +89,15 @@ const static MemSig AfterbirthRNGVals = {
 // 2B F0                 | sub esi, eax                           |
 // 8B 04 B5 70 D3 B9 00  | mov eax,dword ptr ds:[esi*4+B9D370]    |  <== Need this address
 static unsigned char AfterbirthRNGMapSig[] =
-        {
-                0x03, 0xC0,
-                0x03, 0xC0,
-                0x2B, 0xF0,
-                0x8B, 0x04, 0xB5, 0x00, 0x00, 0x00, 0x00
-        };
+{
+    0x03, 0x00,
+    0x03, 0x00,
+    0x2B, 0x00,
+    0x8B, 0x04, 0xB5, 0x00, 0x00, 0x00, 0x00
+};
 const static MemSig AfterbirthRNGMap = {
-        AfterbirthRNGMapSig,
-        "bbbbbbbbbvvvv"
+    AfterbirthRNGMapSig,
+    "b?b?b?bbbvvvv"
 };
 
 #endif //MISSINGHUD2_REBIRTHMEMSIGNATURES_H
