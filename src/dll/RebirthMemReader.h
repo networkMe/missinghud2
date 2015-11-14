@@ -27,24 +27,23 @@
 
 #define WCHAR_ISAAC_MODULE_NAME   L"isaac-ng.exe"
 
-#define ITEM_ACTIVE_SLOT 0x1CD4
+#define ITEM_ACTIVE_SLOT 0x1CF4
 #define ACTIVE_ITEM_BOOKOFREVELATIONS 0x4E
 #define ACTIVE_ITEM_BOOKOFBELIAL 0x22
 
-#define PLAYER_HAS_ITEM_FORM_OFFSET 0x1D84
+#define PLAYER_HAS_ITEM_FORM_OFFSET 0x1DA4
 #define PASSIVE_ITEM_PENTAGRAM 0x33
 #define PASSIVE_ITEM_BLACKCANDLE 0x104
 #define PASSIVE_ITEM_GOATHEAD 0xD7
-#define UNKNOWN_AFTERBIRTH_ITEMS 0x1E50
+#define PASSIVE_ITEM_ZODIAC 0x188
+#define PASSIVE_ITEM_PENTAGRAM_COUNT 0x1E70
 
 #define PLAYER_MANAGER_FLOOR_FLAGS 0x708C
 #define PLAYER_MANAGER_FLOOR_BOSS_FIGHT 0x7014
 #define PLAYER_MANAGER_ROOM_CODE 0x7018
 #define PLAYER_MANAGER_ROOM_CODE_FORMULA_OFFSET 0x6D40
 #define PLAYER_MANAGER_BOSS_ROOM_CODE 0x7020
-#define PLAYER_MANAGER_DEVILDEAL_PREV_FLOOR 0x174DD4
-#define PLAYER_MANAGER_DEVILDEAL_UNKNOWN_1 0x175020
-#define PLAYER_MANAGER_DEVILDEAL_UNKNOWN_2 0x703C
+#define PLAYER_MANAGER_DEVILDEAL_PREV_FLOOR 0x174DDC
 
 #define BOSS_FIGHT_TOOK_RED_DMG 0xE8C
 
@@ -56,14 +55,14 @@
 // These values are the offsets of the specific statistic from the core Player memory address
 enum RebirthPlayerStat
 {
-    kSpeed = 0x1CBC,
-    kRange = 0x1BF4,
-    kTearsDelay = 0x1BE0,
-    kShotSpeed = 0x1BE4,
-    kShotHeight = 0x1BF8,
-    kDamage = 0x1BF0,
-    kLuck = 0x1CC0,
-    kTearsFired = 0x1BEC,
+    kSpeed = 0x1CDC,
+    kRange = 0x1C14,
+    kTearsDelay = 0x1C00,
+    kShotSpeed = 0x1C04,
+    kShotHeight = 0x1C18,
+    kDamage = 0x1C10,
+    kLuck = 0x1CE0,
+    kTearsFired = 0x1C0C,
     kDealWithDevil = 0xFFFFFFFF  // An advanced function is required for this statistic
 };
 

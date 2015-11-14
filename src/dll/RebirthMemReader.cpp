@@ -105,12 +105,6 @@ float RebirthMemReader::GetDealWithDevilChance()
     if (current_floor_ == 1 || current_floor_ > 8)    // In-eligible for natural DWD on these floors (even with Goat Head)
         return 0.0f;
 
-    // If these 2 conditions are met, you get a guaranteed DWD. I have not a clue what sets these though!
-    DWORD dwd_floor_flag_unknown_1 = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_DEVILDEAL_UNKNOWN_1));
-    DWORD dwd_floor_flag_unknown_2 = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_DEVILDEAL_UNKNOWN_2));
-    if (dwd_floor_flag_unknown_1 == 0x2 && dwd_floor_flag_unknown_2 < 0xB)
-        return 1.0f;
-
     DWORD player = GetPlayerMemAddr();
     float dwd_chance = 0.01f; // Default 1% chance
 
@@ -120,20 +114,18 @@ float RebirthMemReader::GetDealWithDevilChance()
     if (PlayerHasItem(PASSIVE_ITEM_BLACKCANDLE))    // Black Candle adds 15% chance
         dwd_chance += 0.15f;
 
-    DWORD afterbirth_items_flag = *((DWORD*)(player + UNKNOWN_AFTERBIRTH_ITEMS));
+    DWORD pentagram_count = *((DWORD*)(player + PASSIVE_ITEM_PENTAGRAM_COUNT));
 
-    // No idea what Afterbirth item this is, but it can affect whether
-    // the Afterbirth item's 5% increase is introduced
-    if (PlayerHasItem(0x188))
+    // Zodiac has a chance to give you a Pentagram effect
+    if (PlayerHasItem(PASSIVE_ITEM_ZODIAC))
     {
-        // This item relies on RNG as to whether it contributes to the devil deal chance or not??
         DWORD rng_func_result = AfterBirthItemRNGFunc();
-        if (rng_func_result == 0x33)
-            ++afterbirth_items_flag;
+        if (rng_func_result == PASSIVE_ITEM_PENTAGRAM)  // Is Zodiac randomly providing a Pentagram?
+            ++pentagram_count;
     }
 
-    if (afterbirth_items_flag > 1)   // There's a 3 Afterbirth items that use this flag
-        dwd_chance += 0.05f;         // They add 5% if it's above 1 but I have no idea what sets this flag
+    if (pentagram_count > 1)
+        dwd_chance += 0.05f;   // More than one Pentagram adds another 5% chance
 
     DWORD player_active_item = *((DWORD*)(player + ITEM_ACTIVE_SLOT));
     if (player_active_item == ACTIVE_ITEM_BOOKOFREVELATIONS)    // Holding Book of Revelations adds 17.5% chance
@@ -430,7 +422,7 @@ bool RebirthMemReader::PlayingGreed()
 
 DWORD RebirthMemReader::AfterBirthItemRNGFunc()
 {
-    if (!PlayerHasItem(0x188))
+    if (!PlayerHasItem(PASSIVE_ITEM_ZODIAC))
         return 0;
 
     DWORD player_manager_inst = GetPlayerManagerMemAddr();
