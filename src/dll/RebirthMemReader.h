@@ -108,7 +108,7 @@ private:
     DWORD GetCurrentRoom();
 
     bool PlayerHasItem(int item_id);
-    DWORD AfterBirthItemRNGFunc();
+    DWORD ZodiacItemRNGFunc();
 
     void SaveStat(RebirthPlayerStat player_stat, float stat_val);
 

@@ -119,13 +119,14 @@ float RebirthMemReader::GetDealWithDevilChance()
     // Zodiac has a chance to give you a Pentagram effect
     if (PlayerHasItem(PASSIVE_ITEM_ZODIAC))
     {
-        DWORD rng_func_result = AfterBirthItemRNGFunc();
-        if (rng_func_result == PASSIVE_ITEM_PENTAGRAM)  // Is Zodiac randomly providing a Pentagram?
+        DWORD zodiac_result = ZodiacItemRNGFunc();
+        if (zodiac_result == PASSIVE_ITEM_PENTAGRAM)  // Is Zodiac randomly providing a Pentagram?
             ++pentagram_count;
     }
 
     if (pentagram_count > 1)
         dwd_chance += 0.05f;   // More than one Pentagram adds another 5% chance
+                               // Zodiac can not give you the first Pentagram, only subsequent ones
 
     DWORD player_active_item = *((DWORD*)(player + ITEM_ACTIVE_SLOT));
     if (player_active_item == ACTIVE_ITEM_BOOKOFREVELATIONS)    // Holding Book of Revelations adds 17.5% chance
@@ -180,7 +181,7 @@ float RebirthMemReader::GetDealWithDevilChance()
         }
     }
 
-    if (PlayerHasItem(PASSIVE_ITEM_GOATHEAD))       // Goat Head adds 666% chance (nice!)
+    if (PlayerHasItem(PASSIVE_ITEM_GOATHEAD))       // Goat Head adds 6660% chance (nice!)
         dwd_chance += 66.6;
 
     if (dwd_chance > 1.00f)
@@ -420,7 +421,7 @@ bool RebirthMemReader::PlayingGreed()
     return (game_mode_flag == GREED_GAME_MODE);
 }
 
-DWORD RebirthMemReader::AfterBirthItemRNGFunc()
+DWORD RebirthMemReader::ZodiacItemRNGFunc()
 {
     if (!PlayerHasItem(PASSIVE_ITEM_ZODIAC))
         return 0;
