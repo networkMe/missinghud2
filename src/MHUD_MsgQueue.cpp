@@ -46,7 +46,11 @@ void MHUD::MsgQueue::Remove(std::string queue_name)
 MHUD::MsgQueue::MsgQueue(std::string queue_name)
 {
     // Set-up the Dll message queue (for IPC)
-    mhud2_msgs_ = new message_queue(open_or_create, queue_name.c_str(), 50, sizeof(byte) * (MAX_MSG_SIZE_BYTES + 1));
+    permissions mq_permissions;
+    mq_permissions.set_unrestricted();
+
+    mhud2_msgs_ = new message_queue(open_or_create, queue_name.c_str(), 50, sizeof(byte) * (MAX_MSG_SIZE_BYTES + 1),
+                                    mq_permissions);
 }
 
 MHUD::MsgQueue::~MsgQueue()
