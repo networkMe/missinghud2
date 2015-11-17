@@ -43,13 +43,13 @@ HUDStat::~HUDStat()
 void HUDStat::Draw(glm::vec2 position, float stat_value, float stat_change, bool percentage)
 {
     // Draw icon sprite
-    glm::vec2 icon_size(0.08f, 0.13f);
+    glm::vec2 icon_size(32.0f * HUDOverlay::GetInstance()->GetHUDSizeMultiplier(), 32.0f * HUDOverlay::GetInstance()->GetHUDSizeMultiplier());
     SpriteSheet *icon_sprite = SpriteSheet::GetSpriteSheet(MHUD2_STAT_ICONS);
     icon_sprite->DrawSprite(position, icon_size, MHUD2STAT_STRING[hud_stat_]);
 
     // Draw statistic value
-    position.x += 0.075f;
-    position.y -= 0.0375f;
+    position.x += 32.0f * HUDOverlay::GetInstance()->GetHUDSizeMultiplier();
+    position.y -= 8.0f * HUDOverlay::GetInstance()->GetHUDSizeMultiplier();
     TextRenderer *isaac_text = TextRenderer::GetRenderer(MHUD2_ISAAC_FONT_PNG, MHUD2_ISAAC_FONT_CHARMAP);
     glm::vec2 text_render_size = isaac_text->RenderText(position, NumToStr(stat_value, percentage), Color(255, 255, 255));
 
@@ -64,13 +64,13 @@ void HUDStat::Draw(glm::vec2 position, float stat_value, float stat_change, bool
 void HUDStat::Draw(glm::vec2 position, int stat_value, int stat_change)
 {
     // Draw icon sprite
-    glm::vec2 icon_size(0.08f, 0.13f);
+    glm::vec2 icon_size(32.0f * HUDOverlay::GetInstance()->GetHUDSizeMultiplier(), 32.0f * HUDOverlay::GetInstance()->GetHUDSizeMultiplier());
     SpriteSheet *icon_sprite = SpriteSheet::GetSpriteSheet(MHUD2_STAT_ICONS);
     icon_sprite->DrawSprite(position, icon_size, MHUD2STAT_STRING[hud_stat_]);
 
     // Draw statistic value
-    position.x += 0.075f;
-    position.y -= 0.0375f;
+    position.x += 32.0f * HUDOverlay::GetInstance()->GetHUDSizeMultiplier();
+    position.y -= 8.0f * HUDOverlay::GetInstance()->GetHUDSizeMultiplier();
     TextRenderer *isaac_text = TextRenderer::GetRenderer(MHUD2_ISAAC_FONT_PNG, MHUD2_ISAAC_FONT_CHARMAP);
     glm::vec2 text_render_size = isaac_text->RenderText(position, NumToStr(stat_value), Color(255, 255, 255));
 

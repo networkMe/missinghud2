@@ -145,8 +145,8 @@ void SpriteSheet::DrawSprite(glm::vec2 position, glm::vec2 size, std::string spr
         // Position                                                       // Texture
         (GLfloat)position.x + size.x,    (GLfloat)position.y,             tex_top_left_x + sprite_tex_width_,    tex_top_left_y,                         // Top-right
         (GLfloat)position.x + size.x,    (GLfloat)position.y - size.y,    tex_top_left_x + sprite_tex_width_,    tex_top_left_y - sprite_tex_height_,    // Bottom-right
-        (GLfloat)position.x,             (GLfloat)position.y - size.y,    tex_top_left_x,    tex_top_left_y - sprite_tex_height_,                        // Bottom-left
-        (GLfloat)position.x,             (GLfloat)position.y,             tex_top_left_x,    tex_top_left_y                                              // Top-left
+        (GLfloat)position.x,             (GLfloat)position.y - size.y,    tex_top_left_x,                        tex_top_left_y - sprite_tex_height_,    // Bottom-left
+        (GLfloat)position.x,             (GLfloat)position.y,             tex_top_left_x,                        tex_top_left_y                          // Top-left
     };
     GLuint gl_ele_buff[] = {
         1, 0, 3,
@@ -155,6 +155,14 @@ void SpriteSheet::DrawSprite(glm::vec2 position, glm::vec2 size, std::string spr
 
     // Actually draw the sprite
     spritesheet_shader->Use();
+
+    // Handle different aspect ratios
+    VIEWSIZE vp_size = HUDOverlay::GetInstance()->GetViewportSize();
+    glm::mat4 projection = glm::ortho(0.0f, (float)vp_size.width, 0.0f, (float)vp_size.height);
+    glUniformMatrix4fv(glGetUniformLocation(spritesheet_shader->GetProgID(), "projection"), 1, GL_FALSE,
+                       glm::value_ptr(projection));
+
+    // Handle color
     glUniform3f(glGetUniformLocation(spritesheet_shader->GetProgID(), "texture_color"), sprite_color.r, sprite_color.g, sprite_color.b);
     glBindTexture(GL_TEXTURE_2D, spritesheet_texture_);
 

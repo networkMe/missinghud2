@@ -33,12 +33,18 @@ public:
 
     void DrawHUD(HDC hdc);
 
+    VIEWSIZE GetViewportSize();
+    float GetHUDSizeMultiplier();
+
 private:
     HUDOverlay();
     ~HUDOverlay();
 
 private:
     static HUDOverlay *instance_;
+
+    VIEWSIZE viewport_size_;
+    std::chrono::time_point<std::chrono::system_clock> viewport_updated_ = std::chrono::system_clock::now();
 };
 
 #endif //MISSINGHUD2_HUDOVERLAY_H

@@ -28,6 +28,7 @@
 #include "GLStructs.h"
 #include "ResourceLoader.h"
 #include "ShaderProgram.h"
+#include "HUDOverlay.h"
 #include <res/DllResources.h>
 
 class SpriteSheet
