@@ -22,18 +22,13 @@ If you wish to no longer see the HUD, just close the main executable and the HUD
 The latest binary release can be found here:
 https://github.com/networkMe/missinghud2/releases/latest
 
-**===== NOTE FOR REBIRTH PLAYERS =====**
-
-The last version that is compatible with the original Rebirth version of the game is v1.2.4
-https://github.com/networkMe/missinghud2/releases/tag/v1.2.4
-
 ## Runtime Requirements
 * A graphics card with OpenGL 2.0 support (any graphics card that can run Rebirth should have this).
 
 ## Current features
 * Works in fullscreen and windowed mode (as it's a direct OpenGL implementation)
 * Shows how your raw statistics change as you pick up items and use pills, real-time
-* Allows you to choose at what precision you see the raw statistics (default is 1 decimal place)
+* Allows you to choose at what precision you see the raw statistics (default is 2 decimal place)
 * Statistics HUD on the left of the Rebirth viewport shows:
   * Total tears fired in run (optional)
   * Speed
@@ -44,6 +39,7 @@ https://github.com/networkMe/missinghud2/releases/tag/v1.2.4
   * Damage
   * Luck
   * Deal with the Devil % chance
+  * Deal with the Angel % chance
 
 ## Building
 Missing HUD 2 has the below dependencies:
