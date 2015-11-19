@@ -23,7 +23,7 @@
 #include "GLStructs.h"
 #include "TextRenderer.h"
 #include "HUDStat.h"
-#include "RebirthMemReader.h"
+#include "MemReader.h"
 
 class HUDOverlay
 {

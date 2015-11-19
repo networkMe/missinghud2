@@ -39,7 +39,9 @@ set(DLL_SOURCE_FILES
     src/dll/GLStructs.h src/dll/GLStructs.cpp
     src/dll/GDISwapBuffers.h src/dll/GDISwapBuffers.cpp
 
-    src/dll/RebirthMemSignatures.h
+    src/dll/IsaacMemSignatures.h
+    src/dll/MemReader.h src/dll/MemReader.cpp
+    src/dll/AfterbirthMemReader.h src/dll/AfterbirthMemReader.cpp
     src/dll/RebirthMemReader.h src/dll/RebirthMemReader.cpp
     src/dll/HUDOverlay.h src/dll/HUDOverlay.cpp
     src/dll/HUDStat.h src/dll/HUDStat.cpp

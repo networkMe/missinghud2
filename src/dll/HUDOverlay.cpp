@@ -78,7 +78,7 @@ HUDOverlay::~HUDOverlay()
 void HUDOverlay::DrawHUD(HDC hdc)
 {
     // Get the Rebirth memory reader to get the HUD stat values
-    RebirthMemReader *mem_reader = RebirthMemReader::GetMemoryReader();
+    MemReader *mem_reader = MemReader::GetMemoryReader();
     if (!mem_reader->IsRunActive())
         return; // We don't want to draw the HUD if the player isn't in a Rebirth run
 
@@ -93,60 +93,60 @@ void HUDOverlay::DrawHUD(HDC hdc)
     if (DLLPreferences::GetInstance()->GetPrefs().show_tears_fired)
     {
         HUDStat tears_fired_stat(MHUDSTAT::kStat_TearsFired);
-        tears_fired_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStati(RebirthPlayerStat::kTearsFired),
+        tears_fired_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStati(PlayerStat::kTearsFired),
                               NO_RECENT_STAT_CHANGES_I);
 
         base_hud_stats_menu.y -= (25.0f * GetHUDSizeMultiplier());
     }
 
     HUDStat speed_stat(MHUDSTAT::kStat_Speed);
-    speed_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kSpeed),
-                    mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kSpeed));
+    speed_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(PlayerStat::kSpeed),
+                    mem_reader->GetPlayerRecentStatChangef(PlayerStat::kSpeed));
 
     base_hud_stats_menu.y -= (25.0f * GetHUDSizeMultiplier());
     HUDStat range_stat(MHUDSTAT::kStat_Range);
-    range_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kRange),
-                    mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kRange));
+    range_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(PlayerStat::kRange),
+                    mem_reader->GetPlayerRecentStatChangef(PlayerStat::kRange));
 
     base_hud_stats_menu.y -= (25.0f * GetHUDSizeMultiplier());
     HUDStat firerate_stat(MHUDSTAT::kStat_FireRate);
-    firerate_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStati(RebirthPlayerStat::kTearsDelay),
-                       mem_reader->GetPlayerRecentStatChangei(RebirthPlayerStat::kTearsDelay));
+    firerate_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStati(PlayerStat::kTearsDelay),
+                       mem_reader->GetPlayerRecentStatChangei(PlayerStat::kTearsDelay));
 
     base_hud_stats_menu.y -= (25.0f * GetHUDSizeMultiplier());
     HUDStat shotspeed_stat(MHUDSTAT::kStat_ShotSpeed);
-    shotspeed_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kShotSpeed),
-                        mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kShotSpeed));
+    shotspeed_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(PlayerStat::kShotSpeed),
+                        mem_reader->GetPlayerRecentStatChangef(PlayerStat::kShotSpeed));
 
     if (DLLPreferences::GetInstance()->GetPrefs().show_shot_height)
     {
         base_hud_stats_menu.y -= (25.0f * GetHUDSizeMultiplier());
         HUDStat shot_height_stat(MHUDSTAT::kStat_ShotHeight);
-        shot_height_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kShotHeight),
-                              mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kShotHeight));
+        shot_height_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(PlayerStat::kShotHeight),
+                              mem_reader->GetPlayerRecentStatChangef(PlayerStat::kShotHeight));
     }
 
     base_hud_stats_menu.y -= (25.0f * GetHUDSizeMultiplier());
     HUDStat damage_stat(MHUDSTAT::kStat_Damage);
-    damage_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDamage),
-                     mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kDamage));
+    damage_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(PlayerStat::kDamage),
+                     mem_reader->GetPlayerRecentStatChangef(PlayerStat::kDamage));
 
     base_hud_stats_menu.y -= (25.0f * GetHUDSizeMultiplier());
     HUDStat luck_stat(MHUDSTAT::kStat_Luck);
-    luck_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kLuck),
-                   mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kLuck));
+    luck_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(PlayerStat::kLuck),
+                   mem_reader->GetPlayerRecentStatChangef(PlayerStat::kLuck));
 
     if (DLLPreferences::GetInstance()->GetPrefs().split_deal_chance)
     {
         base_hud_stats_menu.y -= (25.0f * GetHUDSizeMultiplier());
         HUDStat dwd_stat(MHUDSTAT::kStat_DealWithDevil);
-        dwd_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDealWithDevil),
-                      mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kDealWithDevil), SHOW_AS_PERCENTAGE);
+        dwd_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(PlayerStat::kDealWithDevil),
+                      mem_reader->GetPlayerRecentStatChangef(PlayerStat::kDealWithDevil), SHOW_AS_PERCENTAGE);
 
         base_hud_stats_menu.y -= (25.0f * GetHUDSizeMultiplier());
         HUDStat dwa_stat(MHUDSTAT::kStat_DealWithAngel);
-        dwa_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDealWithAngel),
-                      mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kDealWithAngel), SHOW_AS_PERCENTAGE);
+        dwa_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(PlayerStat::kDealWithAngel),
+                      mem_reader->GetPlayerRecentStatChangef(PlayerStat::kDealWithAngel), SHOW_AS_PERCENTAGE);
     }
     else
     {
@@ -154,8 +154,8 @@ void HUDOverlay::DrawHUD(HDC hdc)
         {
             base_hud_stats_menu.y -= (25.0f * GetHUDSizeMultiplier());
             HUDStat dwd_stat(MHUDSTAT::kStat_DealDoorChance);
-            dwd_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDealDoorChance),
-                          mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kDealDoorChance), SHOW_AS_PERCENTAGE);
+            dwd_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(PlayerStat::kDealDoorChance),
+                          mem_reader->GetPlayerRecentStatChangef(PlayerStat::kDealDoorChance), SHOW_AS_PERCENTAGE);
         }
     }
 }

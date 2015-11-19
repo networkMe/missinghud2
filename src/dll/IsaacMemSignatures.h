@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 //         limitations under the License.
 
-#ifndef MISSINGHUD2_REBIRTHMEMSIGNATURES_H
-#define MISSINGHUD2_REBIRTHMEMSIGNATURES_H
+#ifndef MISSINGHUD2_ISAACMEMSIGNATURES_H
+#define MISSINGHUD2_ISAACMEMSIGNATURES_H
 
 struct MemSig
 {
@@ -23,10 +23,23 @@ struct MemSig
                                          //                   "v" = a value byte to return
 };
 
+// =============================================================
+// The below signature is used to determine whether the player is
+// playing Rebirth or Afterbirth
+// =============================================================
+
+
+
+const static unsigned char AfterbirthCheckSig[] = { 'a', 'f', 't', 'e', 'r', 'b', 'i', 'r', 't', 'h', '.', 'a' };
+const static MemSig AfterbirthCheck = {
+    AfterbirthCheckSig,
+    "bbbbbbbbbbbbv"
+};
+
 
 
 // =============================================================
-// The below signatures are valid for Isaac Rebirth 1.00 -> 1.05
+// The below signatures are valid for Isaac Rebirth & Afterbirth
 // =============================================================
 
 
@@ -100,4 +113,4 @@ const static MemSig AfterbirthRNGMap = {
     "b?b?b?bbbvvvv"
 };
 
-#endif //MISSINGHUD2_REBIRTHMEMSIGNATURES_H
+#endif //MISSINGHUD2_ISAACMEMSIGNATURES_H

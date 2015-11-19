@@ -15,101 +15,61 @@
 #ifndef MISSINGHUD2_REBIRTHMEMREADER_H
 #define MISSINGHUD2_REBIRTHMEMREADER_H
 
-#include <map>
-#include <vector>
-#include <sstream>
-#include <chrono>
+#include "MemReader.h"
 
-#include <windows.h>
+#define RB_ITEM_ACTIVE_SLOT 0xCC8
+#define RB_ACTIVE_ITEM_BOOKOFREVELATIONS 0x4E
+#define RB_ACTIVE_ITEM_BOOKOFBELIAL 0x22
 
-#include "RebirthMemSignatures.h"
-#include "src/MHUD_MsgQueue.h"
+#define RB_PASSIVE_ITEM_PENTAGRAM 0xE38
+#define RB_PASSIVE_ITEM_GOATHEAD 0x10C8
+#define RB_PASSIVE_ITEM_BLACKCANDLE 0x117C
+#define RB_PASSIVE_ITEM_KEYPIECE_1 0x1124
+#define RB_PASSIVE_ITEM_KEYPIECE_2 0x1128
+#define RB_PASSIVE_ITEM_MUMS_PURSE 0xF98
 
-#define WCHAR_ISAAC_MODULE_NAME   L"isaac-ng.exe"
+#define RB_PLAYER_HAS_TRINKET_OFFSET 0xD64
+#define RB_PASSIVE_TRINKET_ROSARYBEAD 0x7
 
-#define ITEM_ACTIVE_SLOT 0x1CF4
-#define ACTIVE_ITEM_BOOKOFREVELATIONS 0x4E
-#define ACTIVE_ITEM_BOOKOFBELIAL 0x22
+#define RB_PLAYER_MANAGER_CURSE_FLAGS 0x8
+#define RB_PLAYER_MANAGER_FLOOR_FLAGS 0x5DC0
+#define RB_PLAYER_MANAGER_BOSS_ROOM_CODE 0x5DA4
+#define RB_PLAYER_MANAGER_ROOM_CODE 0x5D9C
+#define RB_PLAYER_MANAGER_ROOM_CODE_FORMULA_OFFSET 0x5AC4
+#define RB_PLAYER_MANAGER_FLOOR_BOSS_FIGHT 0x5D98
+#define RB_PLAYER_MANAGER_DEAL_PREV_FLOOR 0x10D7E8
+#define RB_PLAYER_MANAGER_FLOOR_DONATIONS 0x10D800
+#define RB_PLAYER_MANAGER_SEEN_DEVIL 0x10D7E0
+#define RB_PLAYER_MANAGER_PAID_DEVIL 0x10D7F8
 
-#define PLAYER_HAS_ITEM_FORM_OFFSET 0x1DA4
-#define PASSIVE_ITEM_PENTAGRAM 0x33
-#define PASSIVE_ITEM_BLACKCANDLE 0x104
-#define PASSIVE_ITEM_GOATHEAD 0xD7
-#define PASSIVE_ITEM_ZODIAC 0x188
-#define PASSIVE_ITEM_PENTAGRAM_COUNT 0x1E70
-#define PASSIVE_ITEM_KEYPIECE_1 0xEE
-#define PASSIVE_ITEM_KEYPIECE_2 0xEF
-#define PASSIVE_ITEM_MUMS_PURSE 0x8B
+#define RB_LABYRINTH_CURSE 0x2
+#define RB_BOSS_FIGHT_TOOK_RED_DMG 0xE8C
 
-#define PLAYER_HAS_TRINKET_OFFSET 0x1D9C
-#define PASSIVE_TRINKET_ROSARYBEAD 0x7
+#define RB_STAT_SPEED 0xCB4
+#define RB_STAT_RANGE 0xBF4
+#define RB_STAT_TEARS 0xBE0
+#define RB_STAT_SHOTSPEED 0xBE4
+#define RB_STAT_SHOTHEIGHT 0xBF8
+#define RB_STAT_DAMAGE 0xBF0
+#define RB_STAT_LUCK 0xCB8
+#define RB_STAT_TEARSFIRED 0xBEC
 
-#define PLAYER_MANAGER_FLOOR_FLAGS 0x708C
-#define PLAYER_MANAGER_FLOOR_BOSS_FIGHT 0x7014
-#define PLAYER_MANAGER_ROOM_CODE 0x7018
-#define PLAYER_MANAGER_ROOM_CODE_FORMULA_OFFSET 0x6D40
-#define PLAYER_MANAGER_BOSS_ROOM_CODE 0x7020
-#define PLAYER_MANAGER_DEAL_PREV_FLOOR 0x174DDC
-#define PLAYER_MANAGER_AMOUNT_DONATED 0x174DF4
-#define PLAYER_MANAGER_SEEN_DEVIL 0x174DD0
-#define PLAYER_MANAGER_PAID_DEVIL 0x174DEC
-
-#define BOSS_FIGHT_TOOK_RED_DMG 0xE8C
-
-#define PLAYER_MANAGER_CURSE_FLAGS 0xC
-#define PLAYER_MANAGER_GAME_MODE_FLAG 0x4
-#define GREED_GAME_MODE 0x3
-#define LABYRINTH_CURSE 0x2
-
-// These values are the offsets of the specific statistic from the core Player memory address
-enum RebirthPlayerStat
-{
-    kSpeed = 0x1CDC,
-    kRange = 0x1C14,
-    kTearsDelay = 0x1C00,
-    kShotSpeed = 0x1C04,
-    kShotHeight = 0x1C18,
-    kDamage = 0x1C10,
-    kLuck = 0x1CE0,
-    kTearsFired = 0x1C0C,
-    kDealDoorChance = 0xFFFFFFFD, // An advanced function is required for this statistic
-    kDealWithDevil = 0xFFFFFFFE,  // An advanced function is required for this statistic
-    kDealWithAngel = 0xFFFFFFFF   // An advanced function is required for this statistic
-};
-
-struct RecentStatChange
-{
-    RebirthPlayerStat stat;
-    float prev_stat_val = 0.0f;
-    float new_stat_val = 0.0f;
-    float stat_diff = 0.0f;
-    std::chrono::time_point<std::chrono::system_clock> time_changed = std::chrono::system_clock::now();
-    std::chrono::milliseconds show_timeout = std::chrono::milliseconds(3000);
-};
-
-class RebirthMemReader
+class RebirthMemReader : public MemReader
 {
 public:
-    static RebirthMemReader *GetMemoryReader();
-    static void Destroy();
-
-    bool IsRunActive();
-    bool PlayingGreed();
-
-    float GetPlayerStatf(RebirthPlayerStat player_stat);
-    int GetPlayerStati(RebirthPlayerStat player_stat);
-
-    float GetPlayerRecentStatChangef(RebirthPlayerStat player_stat);
-    int GetPlayerRecentStatChangei(RebirthPlayerStat player_stat);
-
-private:
     RebirthMemReader();
     ~RebirthMemReader();
 
-    void GetRebirthModuleInfo();
+    bool IsRunActive();
 
-    // Note this function always returns the first signature it finds, so make sure it's unique
-    std::vector<unsigned char> SearchMemForVal(MemSig mem_sig);
+    float GetPlayerStatf(PlayerStat player_stat);
+    int GetPlayerStati(PlayerStat player_stat);
+
+    float GetPlayerRecentStatChangef(PlayerStat player_stat);
+    int GetPlayerRecentStatChangei(PlayerStat player_stat);
+
+private:
+    void GetRebirthModuleInfo();
 
     DWORD GetPlayerManagerMemAddr();
     DWORD GetPlayerListMemAddr();
@@ -121,29 +81,19 @@ private:
     float GetDealWithAngelMultiplier();
     DWORD GetCurrentRoom();
 
-    bool PlayerHasItem(int item_id);
+    bool PlayerHasItem(DWORD item_offset);
     bool PlayerHasTrinket(int trinket_id);
-    DWORD ZodiacItemRNGFunc();
 
-    void SaveStat(RebirthPlayerStat player_stat, float stat_val);
+    void SaveStat(PlayerStat player_stat, float stat_val);
 
 private:
-    static RebirthMemReader* mem_reader_;
-
-    DWORD module_address_ = 0;
-    DWORD module_size_ = 0;
-
     DWORD player_manager_inst_p_addr_ = 0;
     DWORD player_manager_player_list_offset_ = 0;
 
-    DWORD rng_map_addr_ = 0;
-    DWORD rng_value_1_addr_ = 0;
-    DWORD rng_value_2_addr_ = 0;
-    DWORD rng_value_3_addr_ = 0;
-
     int current_floor_ = 0;
     bool boss_fight_took_dmg_ = false;
-    std::map<RebirthPlayerStat, RecentStatChange> stat_change_;
+    std::map<PlayerStat, RecentStatChange> stat_change_;
 };
+
 
 #endif //MISSINGHUD2_REBIRTHMEMREADER_H
