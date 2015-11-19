@@ -3,6 +3,7 @@
     <file alias="APP_ICON">files/MissingHUD2Logo.png</file>
   </qresource>
   <qresource prefix="img">
+    <file alias="STEAM_LOGO">files/steam_logo.png</file>
     <file alias="MHUD2_BANNER">files/MissingHUD2Banner.png</file>
   </qresource>
 </RCC>

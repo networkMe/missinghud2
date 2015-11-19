@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>318</width>
-    <height>388</height>
+    <height>437</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,6 +38,32 @@
       </property>
       <property name="margin">
        <number>5</number>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_RunIsaacSteam">
+      <property name="font">
+       <font>
+        <family>Segoe UI</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background: #333; color: white; border: 1px solid black; padding: 10px;</string>
+      </property>
+      <property name="text">
+       <string>Run Isaac via Steam</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../res/MissingHUD2.qrc">
+        <normaloff>:/img/STEAM_LOGO</normaloff>:/img/STEAM_LOGO</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>64</width>
+        <height>19</height>
+       </size>
       </property>
      </widget>
     </item>

@@ -30,6 +30,8 @@ LoaderGUI::LoaderGUI(QWidget *parent) :
                      this, SLOT(SavePreferences(bool)));
     QObject::connect(ui_.btn_ResetPrefs, SIGNAL(clicked(bool)),
                      this, SLOT(ResetPreferences(bool)));
+    QObject::connect(ui_.btn_RunIsaacSteam, SIGNAL(clicked(bool)),
+                     this, SLOT(RunSteamIsaac(bool)));
 }
 
 void LoaderGUI::ConnectSlots(BoIInjector &injector)
@@ -106,6 +108,12 @@ void LoaderGUI::SavePreferences(bool checked)
 void LoaderGUI::ResetPreferences(bool checked)
 {
     UpdatePrefs(MHUD::Prefs());
+}
+
+void LoaderGUI::RunSteamIsaac(bool checked)
+{
+    // 250900 is Rebirth/Afterbirth's Steam App ID
+    QDesktopServices::openUrl(QUrl(QString::fromStdString("steam://rungameid/250900")));
 }
 
 void LoaderGUI::OnUpdateResponse(QNetworkReply *response)
