@@ -47,6 +47,7 @@ void LoaderGUI::UpdatePrefs(MHUD::Prefs mhud_prefs)
 {
     ui_.cb_ShowNumTears->setChecked(mhud_prefs.show_tears_fired);
     ui_.cb_ShowShotHeight->setChecked(mhud_prefs.show_shot_height);
+    ui_.cb_SplitDealChance->setChecked(mhud_prefs.split_deal_chance);
     ui_.spinbox_Precision->setValue(mhud_prefs.stat_precision);
 }
 
@@ -89,6 +90,7 @@ void LoaderGUI::SavePreferences(bool checked)
     MHUD::Prefs new_mhud2_prefs;
     new_mhud2_prefs.show_tears_fired = ui_.cb_ShowNumTears->isChecked();
     new_mhud2_prefs.show_shot_height = ui_.cb_ShowShotHeight->isChecked();
+    new_mhud2_prefs.split_deal_chance = ui_.cb_SplitDealChance->isChecked();
     new_mhud2_prefs.stat_precision = ui_.spinbox_Precision->value();
     MHUD::Options::SaveCfgFile(CFG_FILENAME, new_mhud2_prefs);
 

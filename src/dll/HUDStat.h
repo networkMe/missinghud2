@@ -44,8 +44,10 @@ enum MHUDSTAT {
     kStat_ShotHeight,
     kStat_Damage,
     kStat_Luck,
-    kStat_DealWithDevil,
-    kStat_TearsFired
+    kStat_DealDoorChance,
+    kStat_TearsFired,
+    kStat_DealWithAngel,
+    kStat_DealWithDevil
 };
 
 static const std::string MHUD2STAT_STRING[] = {
@@ -56,8 +58,10 @@ static const std::string MHUD2STAT_STRING[] = {
     "shotheight",
     "damage",
     "luck",
-    "deal_with_devil",
-    "tears_fired"
+    "deal_door_chance",
+    "tears_fired",
+    "deal_with_angel",
+    "deal_with_devil"
 };
 
 class HUDStat

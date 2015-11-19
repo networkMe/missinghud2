@@ -88,6 +88,12 @@ std::string HUDStat::NumToStr(float number, bool percentage)
 
     if (percentage)
     {
+        if ((float)number != (int)number) // float has decimal part
+        {
+            ss.setf(std::ios::fixed, std::ios::floatfield);
+            ss.precision(DLLPreferences::GetInstance()->GetPrefs().stat_precision);
+        }
+
         ss << (number * 100) << "%";
     }
     else

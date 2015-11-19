@@ -34,6 +34,7 @@ struct Prefs
 {
     bool show_tears_fired = false;
     bool show_shot_height = false;
+    bool split_deal_chance = true;
     int stat_precision = 2;
 };
 

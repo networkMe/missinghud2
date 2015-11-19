@@ -19,4 +19,5 @@ message Preferences
     optional bool show_tears_fired = 1;
     optional bool show_shot_height = 2;
     optional int32 stat_precision = 3;
+    optional bool split_deal_chance = 4;
 }

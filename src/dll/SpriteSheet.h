@@ -49,7 +49,6 @@ private:
 
     void LoadTexture(RESID spritesheet_res_id, bool invert_img_y);
     void MapSpriteTextures(RESID spritesheet_tex_map, SPRITESIZE sprite_size);
-    void GenerateDynamicVertex(int alloced_vertexes);
 
     unsigned char *InvertImage(unsigned char *soil_image_data, int width, int height, int channels);
     std::vector<std::string> ExplodeTexMap(const std::string &s);
@@ -58,7 +57,7 @@ private:
     static std::map<RESID, SpriteSheet*> spritesheets_;
 
     GLuint spritesheet_texture_ = 0;
-    GLuint vertex_array_ = 0, array_buffer_ = 0, ele_array_buffer_ = 0;
+    GLuint array_buffer_ = 0, ele_array_buffer_ = 0;
     int tex_height_ = 0;
     int tex_width_ = 0;
 

@@ -60,6 +60,7 @@ void DLLPreferences::MsgMonitor()
 
                     current_prefs_.show_tears_fired = prefs_proto.show_tears_fired();
                     current_prefs_.show_shot_height = prefs_proto.show_shot_height();
+                    current_prefs_.split_deal_chance = prefs_proto.split_deal_chance();
                     current_prefs_.stat_precision = prefs_proto.stat_precision();
                 } break;
             }

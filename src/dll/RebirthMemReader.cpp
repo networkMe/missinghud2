@@ -55,11 +55,23 @@ bool RebirthMemReader::IsRunActive()
 
 float RebirthMemReader::GetPlayerStatf(RebirthPlayerStat player_stat)
 {
-    if (player_stat == RebirthPlayerStat::kDealWithDevil)
+    if (player_stat == RebirthPlayerStat::kDealDoorChance)
+    {
+        float door_chance = GetDealDoorChance();
+        SaveStat(RebirthPlayerStat::kDealDoorChance, door_chance);
+        return door_chance;
+    }
+    else if (player_stat == RebirthPlayerStat::kDealWithDevil)
     {
         float devil_chance = GetDealWithDevilChance();
         SaveStat(RebirthPlayerStat::kDealWithDevil, devil_chance);
         return devil_chance;
+    }
+    else if (player_stat == RebirthPlayerStat::kDealWithAngel)
+    {
+        float angel_chance = GetDealWithAngelChance();
+        SaveStat(RebirthPlayerStat::kDealWithAngel, angel_chance);
+        return angel_chance;
     }
 
     DWORD player_class = GetPlayerMemAddr();
@@ -93,6 +105,56 @@ int RebirthMemReader::GetPlayerStati(RebirthPlayerStat player_stat)
 
 float RebirthMemReader::GetDealWithDevilChance()
 {
+    return GetDealDoorChance() * (1.00f - GetDealWithAngelMultiplier());
+}
+
+float RebirthMemReader::GetDealWithAngelChance()
+{
+    return GetDealDoorChance() * GetDealWithAngelMultiplier();
+}
+
+float RebirthMemReader::GetDealWithAngelMultiplier()
+{
+    // If you haven't seen a devil deal yet, or you have taken a devil deal via health payment
+    // you can't receive an Angel room
+    DWORD player_manager_inst = GetPlayerManagerMemAddr();
+    if (player_manager_inst == 0)
+        return 0.0f;
+
+    DWORD seen_devil = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_SEEN_DEVIL));
+    if (((seen_devil & 0x20) | 0) == 0)
+        return 0.0f;    // Haven't seen a Devil room, can't get Angel room yet
+
+    if (*((DWORD*)(player_manager_inst + PLAYER_MANAGER_PAID_DEVIL)) != 0)
+        return 0.0f;    // Paid for a Devil deal with red health, can't get Angel room
+
+    float angel_chance = 0.50f;    // Default chance to replace Devil room with Angel room is 50%
+
+    if (PlayerHasItem(PASSIVE_ITEM_KEYPIECE_1))
+        angel_chance = angel_chance + ((1.00f - angel_chance) * 0.25f);    // Having Key Piece #1 gives a 25% chance roll
+
+    if (PlayerHasItem(PASSIVE_ITEM_KEYPIECE_2))
+        angel_chance = angel_chance + ((1.00f - angel_chance) * 0.25f);    // Having Key Piece #2 gives a 25% chance roll
+
+    if (PlayerHasTrinket(PASSIVE_TRINKET_ROSARYBEAD))
+        angel_chance = angel_chance + ((1.00f - angel_chance) * 0.50f);    // Holding the Rosary Bead trinket gives 50% chance roll
+
+    if (*((DWORD*)(player_manager_inst + PLAYER_MANAGER_AMOUNT_DONATED)) >= 10)
+        angel_chance = angel_chance + ((1.00f - angel_chance) * 0.50f);    // Donating 10 or more coins on a floor gives 50% chance roll
+
+    DWORD floor_flags = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_FLOOR_FLAGS));
+    if (((floor_flags >> 1) & 0xff) & 1 || ((floor_flags >> 3) & 0xff) & 1 || ((floor_flags >> 4) & 0xff) & 1)
+        angel_chance = angel_chance + ((1.00f - angel_chance) * 0.25f);    // Devil Beggar blown up (the other 2 floor flags seem to not get set)
+                                                                           // Gives 25% chance roll
+
+    return angel_chance;
+}
+
+float RebirthMemReader::GetDealDoorChance()
+{
+    if (PlayingGreed())
+        return 1.00f;    // Greed mode lets players pick if they want a Deal or not
+
     DWORD player_manager_inst = GetPlayerManagerMemAddr();
     if (player_manager_inst == 0)
         return 0.0f;
@@ -102,17 +164,17 @@ float RebirthMemReader::GetDealWithDevilChance()
     current_floor_ = current_floor;
     if (labyrinth_flag == LABYRINTH_CURSE)
         ++current_floor_;
-    if (current_floor_ == 1 || current_floor_ > 8)    // In-eligible for natural DWD on these floors (even with Goat Head)
+    if (current_floor_ == 1 || current_floor_ > 8)    // In-eligible for natural deal on these floors (even with Goat Head)
         return 0.0f;
 
     DWORD player = GetPlayerMemAddr();
-    float dwd_chance = 0.01f; // Default 1% chance
+    float deal_chance = 0.01f; // Default 1% chance
 
     if (PlayerHasItem(PASSIVE_ITEM_PENTAGRAM))      // Pentagram adds 10% chance
-        dwd_chance += 0.10f;
+        deal_chance += 0.10f;
 
     if (PlayerHasItem(PASSIVE_ITEM_BLACKCANDLE))    // Black Candle adds 15% chance
-        dwd_chance += 0.15f;
+        deal_chance += 0.15f;
 
     DWORD pentagram_count = *((DWORD*)(player + PASSIVE_ITEM_PENTAGRAM_COUNT));
 
@@ -125,26 +187,26 @@ float RebirthMemReader::GetDealWithDevilChance()
     }
 
     if (pentagram_count > 1)
-        dwd_chance += 0.05f;   // More than one Pentagram adds another 5% chance
-                               // Zodiac can not give you the first Pentagram, only subsequent ones
+        deal_chance += 0.05f;   // More than one Pentagram adds another 5% chance
+                                // Zodiac can not give you the first Pentagram, only subsequent ones
 
     DWORD player_active_item = *((DWORD*)(player + ITEM_ACTIVE_SLOT));
     if (player_active_item == ACTIVE_ITEM_BOOKOFREVELATIONS)    // Holding Book of Revelations adds 17.5% chance
-        dwd_chance += 0.175f;
+        deal_chance += 0.175f;
     else if (player_active_item == ACTIVE_ITEM_BOOKOFBELIAL)    // Holding Book of Belial adds 12.5% chance
-        dwd_chance += 0.125f;
+        deal_chance += 0.125f;
 
     BYTE floor_flag = *((BYTE*)(player_manager_inst + PLAYER_MANAGER_FLOOR_FLAGS));
     if (floor_flag & 1)                                         // Killing a normal beggar adds 35% chance
-        dwd_chance += 0.35f;
+        deal_chance += 0.35f;
 
     DWORD floor_flags = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_FLOOR_FLAGS));
     if (((floor_flags >> 2) & 1) <= 0)                          // Not taking red heart damage on the entire floor adds 99% chance
-        dwd_chance += 0.99f;
+        deal_chance += 0.99f;
     if (((floor_flags >> 6) & 1) > 0)                           // Blowing up a dead shopkeeper adds 10% chance
-        dwd_chance += 0.10f;
+        deal_chance += 0.10f;
 
-    // Not taking damage from the floor's boss room adds 35% chance to DWD chance
+    // Not taking damage from the floor's boss room adds 35% chance
     DWORD current_room = GetCurrentRoom();
     DWORD boss_room = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_BOSS_ROOM_CODE));
     if (current_room == boss_room)
@@ -165,29 +227,29 @@ float RebirthMemReader::GetDealWithDevilChance()
     }
 
     if (!boss_fight_took_dmg_)      // Not taking damage from the boss fight adds 35% chance
-        dwd_chance += 0.35f;
+        deal_chance += 0.35f;
 
-    DWORD devil_deal_prev_floor = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_DEVILDEAL_PREV_FLOOR));
-    if (devil_deal_prev_floor > 0)
+    DWORD deal_prev_floor = *((DWORD*)(player_manager_inst + PLAYER_MANAGER_DEAL_PREV_FLOOR));
+    if (deal_prev_floor > 0)
     {
-        int devil_deal_num_floors_ago = current_floor - (int)devil_deal_prev_floor; // Rebirth uses the non-labyrinthed current_floor value
-        if (devil_deal_num_floors_ago <= 1)
+        int deal_num_floors_ago = current_floor - (int) deal_prev_floor; // Rebirth uses the non-labyrinthed current_floor value
+        if (deal_num_floors_ago <= 1)
         {
-            dwd_chance *= 0.25f; // Player has seen a Deal with Devil door less than 2 floors ago, reduce overall chance by 75%
+            deal_chance *= 0.25f; // Player has seen a Deal with Devil door less than 2 floors ago, reduce overall chance by 75%
         }
-        else if (devil_deal_num_floors_ago == 2)
+        else if (deal_num_floors_ago == 2)
         {
-            dwd_chance *= 0.5f; // Player has seen a Deal with Devil door 2 floors ago, reduce overall chance by 50%
+            deal_chance *= 0.5f; // Player has seen a Deal with Devil door 2 floors ago, reduce overall chance by 50%
         }
     }
 
     if (PlayerHasItem(PASSIVE_ITEM_GOATHEAD))       // Goat Head adds 6660% chance (nice!)
-        dwd_chance += 66.6;
+        deal_chance += 66.6;
 
-    if (dwd_chance > 1.00f)
-        dwd_chance = 1.00f;
+    if (deal_chance > 1.00f)
+        deal_chance = 1.00f;
 
-    return dwd_chance;
+    return deal_chance;
 }
 
 void RebirthMemReader::SaveStat(RebirthPlayerStat player_stat, float stat_val)
@@ -409,6 +471,27 @@ bool RebirthMemReader::PlayerHasItem(int item_id)
     DWORD item_flag = *((DWORD*)(player + (item_id * 4) + PLAYER_HAS_ITEM_FORM_OFFSET));
 
     return (item_flag != 0);
+}
+
+bool RebirthMemReader::PlayerHasTrinket(int trinket_id)
+{
+    int num_trinkets = 1;
+    if (PlayerHasItem(PASSIVE_ITEM_MUMS_PURSE))
+        num_trinkets++;    // Mum's Purse lets a player have 2 possible trinkets
+
+    DWORD player = GetPlayerMemAddr();
+    DWORD trinket_offset = 0;
+    for (int i = 0; i < num_trinkets; ++i)
+    {
+        DWORD trinket_flag = *((DWORD*)(player + PLAYER_HAS_TRINKET_OFFSET + trinket_offset));
+        if (trinket_flag == trinket_id)
+            return true;
+
+        trinket_offset += 0x4;
+    }
+
+    // Player clearly doesn't have that trinket!
+    return false;
 }
 
 bool RebirthMemReader::PlayingGreed()

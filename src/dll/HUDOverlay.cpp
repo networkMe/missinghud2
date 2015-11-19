@@ -87,10 +87,7 @@ void HUDOverlay::DrawHUD(HDC hdc)
     base_hud_stats_menu.x = 0.0f;
 
     VIEWSIZE vp_size = GetViewportSize();
-    if (vp_size.height < 720 || vp_size.width < 1200)
-        base_hud_stats_menu.y = (vp_size.height / 24) * 17;
-    else
-        base_hud_stats_menu.y = (vp_size.height / 24) * 15;
+    base_hud_stats_menu.y = (vp_size.height / 24) * 15;
 
     // Show the actual HUD stats
     if (DLLPreferences::GetInstance()->GetPrefs().show_tears_fired)
@@ -139,13 +136,26 @@ void HUDOverlay::DrawHUD(HDC hdc)
     luck_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kLuck),
                    mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kLuck));
 
-
-    // Deal with Devil chance is irrelevant in Greed mode
-    if (!mem_reader->PlayingGreed())
+    if (DLLPreferences::GetInstance()->GetPrefs().split_deal_chance)
     {
         base_hud_stats_menu.y -= (25.0f * GetHUDSizeMultiplier());
         HUDStat dwd_stat(MHUDSTAT::kStat_DealWithDevil);
         dwd_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDealWithDevil),
                       mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kDealWithDevil), SHOW_AS_PERCENTAGE);
+
+        base_hud_stats_menu.y -= (25.0f * GetHUDSizeMultiplier());
+        HUDStat dwa_stat(MHUDSTAT::kStat_DealWithAngel);
+        dwa_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDealWithAngel),
+                      mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kDealWithAngel), SHOW_AS_PERCENTAGE);
+    }
+    else
+    {
+        if (!mem_reader->PlayingGreed())    // Non-split deal chance is irrelevant on Greed mode
+        {
+            base_hud_stats_menu.y -= (25.0f * GetHUDSizeMultiplier());
+            HUDStat dwd_stat(MHUDSTAT::kStat_DealDoorChance);
+            dwd_stat.Draw(base_hud_stats_menu, mem_reader->GetPlayerStatf(RebirthPlayerStat::kDealDoorChance),
+                          mem_reader->GetPlayerRecentStatChangef(RebirthPlayerStat::kDealDoorChance), SHOW_AS_PERCENTAGE);
+        }
     }
 }

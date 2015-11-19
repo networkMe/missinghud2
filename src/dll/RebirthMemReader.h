@@ -37,13 +37,22 @@
 #define PASSIVE_ITEM_GOATHEAD 0xD7
 #define PASSIVE_ITEM_ZODIAC 0x188
 #define PASSIVE_ITEM_PENTAGRAM_COUNT 0x1E70
+#define PASSIVE_ITEM_KEYPIECE_1 0xEE
+#define PASSIVE_ITEM_KEYPIECE_2 0xEF
+#define PASSIVE_ITEM_MUMS_PURSE 0x8B
+
+#define PLAYER_HAS_TRINKET_OFFSET 0x1D9C
+#define PASSIVE_TRINKET_ROSARYBEAD 0x7
 
 #define PLAYER_MANAGER_FLOOR_FLAGS 0x708C
 #define PLAYER_MANAGER_FLOOR_BOSS_FIGHT 0x7014
 #define PLAYER_MANAGER_ROOM_CODE 0x7018
 #define PLAYER_MANAGER_ROOM_CODE_FORMULA_OFFSET 0x6D40
 #define PLAYER_MANAGER_BOSS_ROOM_CODE 0x7020
-#define PLAYER_MANAGER_DEVILDEAL_PREV_FLOOR 0x174DDC
+#define PLAYER_MANAGER_DEAL_PREV_FLOOR 0x174DDC
+#define PLAYER_MANAGER_AMOUNT_DONATED 0x174DF4
+#define PLAYER_MANAGER_SEEN_DEVIL 0x174DD0
+#define PLAYER_MANAGER_PAID_DEVIL 0x174DEC
 
 #define BOSS_FIGHT_TOOK_RED_DMG 0xE8C
 
@@ -63,7 +72,9 @@ enum RebirthPlayerStat
     kDamage = 0x1C10,
     kLuck = 0x1CE0,
     kTearsFired = 0x1C0C,
-    kDealWithDevil = 0xFFFFFFFF  // An advanced function is required for this statistic
+    kDealDoorChance = 0xFFFFFFFD, // An advanced function is required for this statistic
+    kDealWithDevil = 0xFFFFFFFE,  // An advanced function is required for this statistic
+    kDealWithAngel = 0xFFFFFFFF   // An advanced function is required for this statistic
 };
 
 struct RecentStatChange
@@ -104,10 +115,14 @@ private:
     DWORD GetPlayerListMemAddr();
     DWORD GetPlayerMemAddr();
 
+    float GetDealDoorChance();
     float GetDealWithDevilChance();
+    float GetDealWithAngelChance();
+    float GetDealWithAngelMultiplier();
     DWORD GetCurrentRoom();
 
     bool PlayerHasItem(int item_id);
+    bool PlayerHasTrinket(int trinket_id);
     DWORD ZodiacItemRNGFunc();
 
     void SaveStat(RebirthPlayerStat player_stat, float stat_val);

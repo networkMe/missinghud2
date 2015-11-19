@@ -26,6 +26,7 @@ MHUD::Prefs MHUD::Options::ReadCfgFile(std::string cfg_file_name, bool use_cache
     MHUD::Prefs cfg_prefs;
     cfg_prefs.show_tears_fired = cfg_file.value("show_tears_fired", false).toBool();
     cfg_prefs.show_shot_height = cfg_file.value("show_shot_height", false).toBool();
+    cfg_prefs.split_deal_chance = cfg_file.value("split_deal_chance", true).toBool();
     cfg_prefs.stat_precision = cfg_file.value("stat_precision", 2).toInt();
 
     // Cache the result
@@ -44,5 +45,6 @@ void MHUD::Options::SaveCfgFile(std::string cfg_file_name, MHUD::Prefs new_prefs
     QSettings cfg_file(QString::fromStdString(cfg_file_name), QSettings::IniFormat);
     cfg_file.setValue("show_tears_fired", new_prefs.show_tears_fired);
     cfg_file.setValue("show_shot_height", new_prefs.show_shot_height);
+    cfg_file.setValue("split_deal_chance", new_prefs.split_deal_chance);
     cfg_file.setValue("stat_precision", new_prefs.stat_precision);
 }

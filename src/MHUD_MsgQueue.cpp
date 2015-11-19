@@ -117,6 +117,7 @@ void MHUD::MsgQueue::SendPrefs(MHUD::Prefs mhud_prefs)
     mhud2::Preferences prefs_proto;
     prefs_proto.set_show_tears_fired(mhud_prefs.show_tears_fired);
     prefs_proto.set_show_shot_height(mhud_prefs.show_shot_height);
+    prefs_proto.set_split_deal_chance(mhud_prefs.split_deal_chance);
     prefs_proto.set_stat_precision(mhud_prefs.stat_precision);
 
     unsigned int msg_prio = 0;
