@@ -9,8 +9,8 @@ MHUD2_ISAAC_FONT_CHARMAP RCDATA "files/MHUD2FontCharmap.texmap"
 OPENGL_HUD_SPRITE_VERTEX_SHADER RCDATA "shaders/hud_icon_vert.glsl"
 OPENGL_HUD_SPRITE_FRAG_SHADER RCDATA "shaders/hud_icon_frag.glsl"
 
-#define PRODUCT_VER         1,4,0,0
-#define PRODUCT_VER_STR     "1.4.0"
+#define PRODUCT_VER         1,4,1,0
+#define PRODUCT_VER_STR     "1.4.1"
 
 #ifdef NDEBUG
     #define VER_DEBUG 0

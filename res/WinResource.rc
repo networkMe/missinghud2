@@ -2,8 +2,8 @@
 
 APP_ICON ICON "files/MissingHUD2_Ico.ico"
 
-#define PRODUCT_VER         1,4,0,0
-#define PRODUCT_VER_STR     "1.4.0"
+#define PRODUCT_VER         1,4,1,0
+#define PRODUCT_VER_STR     "1.4.1"
 
 #ifdef NDEBUG
     #define VER_DEBUG 0
