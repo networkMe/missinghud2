@@ -45,6 +45,9 @@ public:
 signals:
     void NewPrefs(MHUD::Prefs mhud_prefs);
 
+public slots:
+    void RunSteamIsaac(bool checked = false);
+
 protected:
     void showEvent(QShowEvent *event);
 
@@ -52,7 +55,6 @@ private slots:
     void CheckForUpdates(bool checked = false);
     void SavePreferences(bool checked = false);
     void ResetPreferences(bool checked = false);
-    void RunSteamIsaac(bool checked = false);
     void OnInjectionStatusChange(InjectStatus s);
     void OnFatalError(std::string err_msg);
     void OnUpdateResponse(QNetworkReply* response);

@@ -106,7 +106,7 @@ set(SOURCE_FILES
 add_executable(MissingHUD2 WIN32 ${SOURCE_FILES} ${PROTO_SRCS} ${PROTO_HDRS})
 target_compile_definitions(MissingHUD2 PRIVATE "-DELPP_THREAD_SAFE -DELPP_NO_DEFAULT_LOG_FILE")
 target_link_libraries(MissingHUD2
-    Qt5::Core Qt5::Widgets Qt5::Network Qt5::WinExtras Qt5PlatformSupport
+    Qt5::Core Qt5::Widgets Qt5::Network Qt5::WinExtras
     shlwapi
     protobuf-lite
 )

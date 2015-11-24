@@ -22,6 +22,7 @@
 
 INITIALIZE_EASYLOGGINGPP
 void InitializeEasyLogging(int argc, char* argv[]);
+std::unique_ptr<QCommandLineParser> ParseCommandLine(QApplication *app);
 
 #ifdef QT_STATIC
     Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
@@ -42,11 +43,18 @@ int main(int argc, char* argv[])
     // Load preferences
     MHUD::Prefs mhud_prefs = MHUD::Options::ReadCfgFile(CFG_FILENAME);
 
+    // Handle command line options
+    std::unique_ptr<QCommandLineParser> cmd_line = ParseCommandLine(&app);
+
     // Show GUI
     LoaderGUI gui;
     gui.ConnectSlots(injector);
     gui.UpdatePrefs(mhud_prefs);
     gui.show();
+
+    // Open Isaac automatically if cmd_line says too
+    if (cmd_line->isSet("openisaac"))
+        gui.RunSteamIsaac();
 
     // Start the DLL monitoring thread
     injector.Start();
@@ -71,4 +79,15 @@ void InitializeEasyLogging(int argc, char* argv[])
     logger_conf.setGlobally(el::ConfigurationType::Filename, log_file);
     logger_conf.setGlobally(el::ConfigurationType::ToFile, "true");
     el::Loggers::setDefaultConfigurations(logger_conf, true);
+}
+
+std::unique_ptr<QCommandLineParser> ParseCommandLine(QApplication *app)
+{
+    std::unique_ptr<QCommandLineParser> cmd_parser(new QCommandLineParser());
+
+    QCommandLineOption run_isaac("openisaac", "Open Isaac Steam edition automatically when MHUD2 starts.");
+    cmd_parser->addOption(run_isaac);
+
+    cmd_parser->process(*app);
+    return cmd_parser;
 }
