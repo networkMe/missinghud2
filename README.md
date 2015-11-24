@@ -9,27 +9,24 @@ It can be enabled and disabled at any point, during any run, with no lasting con
 
 Unlike other statistic based mods, it uses your live character statistics during a run. This translates to Missing HUD 2 remaining 100% accurate even after picking up items like [Experimental Treatment](http://bindingofisaacrebirth.gamepedia.com/Experimental_Treatment) and [Libra](http://bindingofisaacrebirth.gamepedia.com/Libra).
 
-![Image of MissingHUD2](https://raw.githubusercontent.com/networkMe/missinghud2/master/doc/isaac-mhud2-example-124.jpg)
+![Image of MissingHUD2](https://raw.githubusercontent.com/networkMe/missinghud2/master/doc/isaac-mhud2-example-141.jpg)
 
 ## Using
-Missing HUD 2 aims to be nearly transparent to the user (and to Rebirth itself).
+Missing HUD 2 aims to be nearly transparent to the user (and to Isaac itself).
 
-You simply run the main executable (which acts as the DLL injector) and the HUD will be drawn onto an active Rebirth process.
-Note: The HUD only appears if you are in an active run.
+You simply run the main executable (which acts as the DLL injector) and the HUD will be drawn onto an active Isaac process.
+Note: The HUD only appears if you are in an active run. You must leave Missing HUD 2 open while you play the game.
 
 If you wish to no longer see the HUD, just close the main executable and the HUD will disappear (the DLL will be unloaded).
 
 The latest binary release can be found here:
 https://github.com/networkMe/missinghud2/releases/latest
 
-## Runtime Requirements
-* A graphics card with OpenGL 2.0 support (any graphics card that can run Rebirth should have this).
-
 ## Current features
 * Works in fullscreen and windowed mode (as it's a direct OpenGL implementation)
 * Shows how your raw statistics change as you pick up items and use pills, real-time
 * Allows you to choose at what precision you see the raw statistics (default is 2 decimal place)
-* Statistics HUD on the left of the Rebirth viewport shows:
+* Statistics HUD on the left of the Isaac viewport shows:
   * Total tears fired in run (optional)
   * Speed
   * Range
@@ -56,3 +53,4 @@ Missing HUD 2 has the below dependencies:
   * [Google's Protobuf](https://github.com/google/protobuf)
   
 It uses the CMake build system to compile.
+The easiest Windows MinGW environment to compile it on is the MSYS2 enviroment.
