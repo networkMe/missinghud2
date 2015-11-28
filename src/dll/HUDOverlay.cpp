@@ -53,12 +53,14 @@ VIEWSIZE HUDOverlay::GetViewportSize()
 float HUDOverlay::GetHUDSizeMultiplier()
 {
     VIEWSIZE vp_size = HUDOverlay::GetViewportSize();
-    if (vp_size.height < 720 || vp_size.width < 1200)
-        return 1.0f;
-    else if (vp_size.height < 960 || vp_size.width < 1600)
-        return 1.5f;
-    else
-        return 2.0f;
+    float hud_scale = 1.0f;
+    if (vp_size.height <= 720 || vp_size.width <= 1200)
+        return hud_scale;
+
+    float scale_height = 0.5f * std::ceil((vp_size.height - 720 + 1) / 240.0f);
+    float scale_width = 0.5f * std::ceil((vp_size.width - 1200 + 1) / 400.0f);
+
+    return hud_scale + std::min(scale_height, scale_width);
 }
 
 HUDOverlay::HUDOverlay()
