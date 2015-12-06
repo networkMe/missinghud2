@@ -15,10 +15,10 @@
 #ifndef MISSINGHUD2_VERSION_H
 #define MISSINGHUD2_VERSION_H
 
-#define MHUD2_VERSION               "v1.4.1"
+#define MHUD2_VERSION               "v1.4.2"
 
 #define MHUD2_MAJOR_VERSION         1
 #define MHUD2_MINOR_VERSION         4
-#define MHUD2_REVISION_VERSION      1
+#define MHUD2_REVISION_VERSION      2
 
 #endif //MISSINGHUD2_VERSION_H
