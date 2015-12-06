@@ -222,9 +222,14 @@ float AfterbirthMemReader::GetDealWithAngelMultiplier()
         angel_chance = angel_chance + ((1.00f - angel_chance) * 0.50f);    // Donating 10 or more coins on a floor gives 50% chance roll
 
     DWORD floor_flags = *((DWORD*)(player_manager_inst + AB_PLAYER_MANAGER_FLOOR_FLAGS));
-    if (((floor_flags >> 1) & 0xff) & 1 || ((floor_flags >> 3) & 0xff) & 1 || ((floor_flags >> 4) & 0xff) & 1)
-        angel_chance = angel_chance + ((1.00f - angel_chance) * 0.25f);    // Devil Beggar blown up (the other 2 floor flags seem to not get set)
-                                                                           // Gives 25% chance roll
+    if (((floor_flags >> 1) & 0xff) & 1)
+        angel_chance = angel_chance + ((1.00f - angel_chance) * 0.25f);    // Devil Beggar blown up gives 25% chance roll
+
+    if (((floor_flags >> 3) & 0xff) & 1)
+        angel_chance = angel_chance + ((1.00f - angel_chance) * 0.10f);    // Paying out a normal beggar gives 10% chance roll
+
+    if (((floor_flags >> 4) & 0xff) & 1)
+        angel_chance = angel_chance - ((1.00f - angel_chance) * 0.10f);    // Paying out a devil beggar removes 10% chance roll
 
     return angel_chance;
 }
@@ -485,7 +490,7 @@ DWORD AfterbirthMemReader::ZodiacItemRNGFunc()
 
     DWORD current_floor = *((DWORD*)(player_manager_inst));
     DWORD rng_addr = ((DWORD)(player_manager_inst + 0xB844));
-    DWORD rng_seed = *((DWORD*)(rng_addr + (current_floor*4) + 0x18));
+    DWORD rng_seed = *((DWORD*)(rng_addr + (current_floor * 0x4) + 0x18));
     DWORD rng_seed_1 = *(DWORD*)rng_value_1_addr_;
     DWORD rng_seed_2 = *(DWORD*)rng_value_2_addr_;
     DWORD rng_seed_3 = *(DWORD*)rng_value_3_addr_;
@@ -501,6 +506,6 @@ DWORD AfterbirthMemReader::ZodiacItemRNGFunc()
     rng_map_base += rng_map_base;
     DWORD map_modifier = rng_3 - rng_map_base;
 
-    DWORD rng_result = *((DWORD*)((map_modifier * 4) + rng_map_addr_));
+    DWORD rng_result = *((DWORD*)((map_modifier * 0x4) + rng_map_addr_));
     return rng_result;
 }
