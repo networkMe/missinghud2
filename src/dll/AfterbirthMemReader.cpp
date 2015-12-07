@@ -200,14 +200,24 @@ float AfterbirthMemReader::GetDealWithAngelMultiplier()
     if (player_manager_inst == 0)
         return 0.0f;
 
+    float angel_chance = 0.0f;
+
+    // "Feeling blessed" player status can override the Deal with the Devil precedent conditions
+    float feeling_blessed_chance = 0.0f;
+    *(DWORD*)(&feeling_blessed_chance) = *((DWORD*)(player_manager_inst + AB_PLAYER_MANAGER_YOU_FEEL_BLESSED));
+    if (feeling_blessed_chance > 0.0f)
+        angel_chance = feeling_blessed_chance;    // It's always 50% in the cases I tested,
+                                                  // possibly could depend on the amount of "Feeling blessed" buffs you receive
+
     DWORD seen_devil = *((DWORD*)(player_manager_inst + AB_PLAYER_MANAGER_SEEN_DEVIL));
     if (((seen_devil & 0x20) | 0) == 0)
-        return 0.0f;    // Haven't seen a Devil room, can't get Angel room yet
+        return angel_chance;    // Haven't seen a Devil room, can't get Angel room yet
 
-    if (*((DWORD*)(player_manager_inst + AB_PLAYER_MANAGER_PAID_DEVIL)) != 0)
-        return 0.0f;    // Paid for a Devil deal with red health, can't get Angel room
+    DWORD paid_devil = *((DWORD*)(player_manager_inst + AB_PLAYER_MANAGER_PAID_DEVIL));
+    if (paid_devil != 0)
+        return angel_chance;    // Paid for a Devil deal with red health, can't get Angel room
 
-    float angel_chance = 0.50f;    // Default chance to replace Devil room with Angel room is 50%
+    angel_chance = 0.50f;    // Default chance to replace Devil room with Angel room is 50%
 
     if (PlayerHasItem(AB_PASSIVE_ITEM_KEYPIECE_1))
         angel_chance = angel_chance + ((1.00f - angel_chance) * 0.25f);    // Having Key Piece #1 gives a 25% chance roll
@@ -230,6 +240,9 @@ float AfterbirthMemReader::GetDealWithAngelMultiplier()
 
     if (((floor_flags >> 4) & 0xff) & 1)
         angel_chance = angel_chance - ((1.00f - angel_chance) * 0.10f);    // Paying out a devil beggar removes 10% chance roll
+
+    if (feeling_blessed_chance > 0.0f)
+        angel_chance = angel_chance + ((1.00f - angel_chance) * feeling_blessed_chance);    // Having the "Feeling blessed" status gives another Angel room roll
 
     return angel_chance;
 }
