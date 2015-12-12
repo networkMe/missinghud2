@@ -22,6 +22,9 @@ If you wish to no longer see the HUD, just close the main executable and the HUD
 The latest binary release can be found here:
 https://github.com/networkMe/missinghud2/releases/latest
 
+**Note:** The **latest version of Missing HUD 2** is designed to be used on the **latest Steam version** of the game.
+If you are crashing or seeing weird stat values that are clearly incorrect, you most likely are not running the latest version of the game and/or Missing HUD 2. Pirated copies of the game are not officially supported by Missing HUD 2.
+
 ## Current features
 * Works in fullscreen and windowed mode (as it's a direct OpenGL implementation)
 * Shows how your raw statistics change as you pick up items and use pills, real-time
