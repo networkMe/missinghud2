@@ -54,6 +54,6 @@ Missing HUD 2 has the below dependencies:
   * [SOIL2](https://bitbucket.org/SpartanJ/soil2)
   * [Boost.Interprocess](http://www.boost.org/doc/libs/1_59_0/doc/html/interprocess.html)
   * [Google's Protobuf](https://github.com/google/protobuf)
-  
+
 It uses the CMake build system to compile.
 The easiest Windows MinGW environment to compile it on is the MSYS2 enviroment.
