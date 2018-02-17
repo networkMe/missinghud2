@@ -259,9 +259,8 @@ float AfterbirthMemReader::GetDealDoorChance()
     int current_floor = *((int*)player_manager_inst);
     int labyrinth_flag = *((int*)((DWORD)player_manager_inst + AB_PLAYER_MANAGER_CURSE_FLAGS));    // Need to take into account whether the floor is a labyrinth cursed floor
     current_floor_ = current_floor;
-    if (labyrinth_flag == AB_LABYRINTH_CURSE)
-        ++current_floor_;
-    if (current_floor_ == 1 || current_floor_ > 8)    // In-eligible for natural deal on these floors (even with Goat Head)
+
+    if ((current_floor_ == 1 && labyrinth_flag != AB_LABYRINTH_CURSE) || current_floor_ > 8)    // In-eligible for natural deal on these floors (even with Goat Head)
         return 0.0f;
 
     DWORD player = GetPlayerMemAddr();
